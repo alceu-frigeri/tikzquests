@@ -96,9 +96,9 @@ There are two kind of questions (``code snippets''): Text ones (which can includ
 \begin{codesyntax}%
 \tsobj{\defQuestion*}\tsargs[oarg]{repository}\tsargs[marg]{quest-name,code}\tsargs[oarg]{remarks}
 \end{codesyntax}
-\tsobj{\defQuestion} creates a new Question in \tsobj[oarg]{repository} (per default using the ``currently active'' one). \tsobj[marg]{quest-name} will be the associated question key, for later reference. \tsobj[marg]{code} will be the corresponding Question's code. \tsobj[oarg]{remarks} is just a small note associated with the Question. It won't be normally used/typeset, except if the \tsobj[option]{in review} option is being used, or when using the command \tsobj{\QuestionsList}.
+\tsobj{\defQuestion} creates a new Question in \tsobj[oarg]{repository} (per default using the ``current active'' one). \tsobj[marg]{quest-name} will be the associated question key, for later reference. \tsobj[marg]{code} will be the corresponding Question's code. \tsobj[oarg]{remarks} is just a small note associated with the Question. It won't be normally used/typeset, except if the \tsobj[option]{in review} option is being used, or when using the command \tsobj{\QuestionsList}.
 
-The starred version \tsobj{\defQuestion*} will create a ``text code'' one, whilst the non starred one \tsobj{\defQuestion} will create a non starred question. The real main difference between the two is regarding their later use (see bellow). Please note that there are \emph{two sets} of questions per repository. The ``starred'' (text ones) and the ``non-starred'' (graphical ones). They are fully distinct.
+The starred version \tsobj{\defQuestion*} will create a ``text code'' one, whilst the non starred one \tsobj{\defQuestion} will create a non starred question. The real main difference between the two is regarding their later use (see \ref{question use}  bellow). Please note that there are \emph{two sets} of questions per repository. The ``starred'' (text ones) and the ``non-starred'' (graphical ones). They are fully distinct.
 \end{codedescribe}
 
 \begin{tsremark}
@@ -130,7 +130,7 @@ An error is raised if \tsobj[marg]{repository} or \tsobj[marg]{quest-name} doesn
 \tsobj{\rawtikzQuestion}\tsargs[oarg]{repository}\tsargs[marg]{quest-name}\tsargs[oarg]{key=value list}\tsargs[xarg]{annotation}
 \end{codesyntax}
 Those are the main commands to use a ``non starred'' (graphical) question.
-The \tsobj{\tikzQuestion} will display the Question's code inside a \tsobj[env]{tikzpicture} environment. \tsobj{\ftikzQuestion} will further nest the code inside a \tsobj[env]{center} environment (preparing it to be used inside a floating environment), whilst \tsobj{\rawtikzQuestion} will just display the code in a local group (in case one wants to use a different graphical environment, like SVG. The \tsobj[oarg]{annotation} will only be added if, and only if, the \tsobj[option]{in review} option is being used. The \tsobj[parg]{scale} factor, when present, is related to the current \tsobj{\textwidth}, so a factor of 0.25 will scale the width of the question to 1/4 of the text width. The \tsobj[oarg]{key=value list} is a set of \tsobj[pkg]{pgfkeys}, see \ref{parameters} below.
+The \tsobj{\tikzQuestion} will display the Question's code inside a \tsobj[env]{tikzpicture} environment. \tsobj{\ftikzQuestion} will further nest the code inside a \tsobj[env]{center} environment (preparing it to be used inside a floating environment), whilst \tsobj{\rawtikzQuestion} will just display the code in a local group (in case one wants to use a different graphical environment, like SVG. The \tsobj[oarg]{annotation} will only be added if, and only if, the \tsobj[option]{in review} option is being used. The \tsobj[parg]{scale} factor, when present, is related to the current \tsobj{\textwidth}, so a factor of 0.25 will scale the width of the question to 1/4th of the text width. The \tsobj[oarg]{key=value list} is a set of \tsobj[pkg]{pgfkeys}, see \ref{parameters} below.
 \end{codedescribe}
 
 \begin{tsremark}
@@ -398,5 +398,19 @@ Choose one of the following two questions:
   \item \textQuestion[default]{Quest A:1}[Beta=200,DC level=8V,Rg=R_{b1},Vo=v_o(t)]<just for the sake of it...>\par
   \ftikzQuestion(0.4)[default]{Elect. 1b}[Ra=50\Omega,Rb*=100\Omega,Rg=R_{b1},Rc=100,Rd=200\Omega,Vbc=18V,Vi=v_i(t),Vo=v_o(t)]
 \end{enumerate}
+
+\subsection{Creating a Questions List}
+To round it up, using the \tsobj{\QuestionsList} (see \ref{question use}):
+\begin{codestore}[Qlist]
+\QuestionsList
+\end{codestore}
+
+\tscode*{Qlist}
+
+One get's:
+
+%and then
+\QuestionsList
+
 
 \end{document} 

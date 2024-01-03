@@ -1,0 +1,402 @@
+% !TEX program = pdflatex
+% !TEX ext =  --interaction=nonstopmode --enable-etex --enable-write18
+% !BIB program = none
+%%%==============================================================================
+%% Copyright 2023 by Alceu Frigeri
+%%
+%% This work may be distributed and/or modified under the conditions of
+%%
+%% * The [LaTeX Project Public License](http://www.latex-project.org/lppl.txt),
+%%   version 1.3c (or later), and/or
+%% * The [GNU Affero General Public License](https://www.gnu.org/licenses/agpl-3.0.html),
+%%   version 3 (or later)
+%%
+%% This work has the LPPL maintenance status *maintained*.
+%%
+%% The Current Maintainer of this work is Alceu Frigeri
+%%
+%% This is version {1.0} {2024/01/03}
+%%
+%% The list of files that compose this work can be found in the README.md file at
+%% https://ctan.org/pkg/tikzquests
+%%
+%%%==============================================================================
+\documentclass[10pt]{article}
+\RequirePackage[verbose,a4paper,marginparwidth=27.5mm,top=2.5cm,bottom=1.5cm,hmargin={40mm,20mm},marginparsep=2.5mm,columnsep=10mm,asymmetric]{geometry}
+\usepackage{codedescribe}
+\usepackage{tikzquests}
+\RequirePackage[inline]{enumitem}
+\SetEnumitemKey{miditemsep}{parsep=0ex,itemsep=0.4ex}
+
+\usepackage[american,siunitx,cuteinductors,smartlabels,arrowmos,EFvoltages,betterproportions]{circuitikz}
+\usetikzlibrary{math}
+
+\RequirePackage[hidelinks,hypertexnames=false]{hyperref}
+\begin{document}
+\tstitle{
+  author={Alceu Frigeri\footnote{\tsverb{https://github.com/alceu-frigeri/tikzquests}}},
+  date={\tsdate},
+  title={The tikzquests package\break A parametric questions' repository\break Version \PkgInfo{tikzquests}{version}}
+  }
+  
+\begin{typesetabstract}
+
+This is a framework for building parametric questions' repositories, which can be further used to construct parametric questions for exams. Unlike other packages (for instance \tsobj[pkg,sep={or}]{exam,exam-n,exam-lite}) this doesn't try to enforce any pre-defined presentation format, focusing only on how to set a repository and use it.
+\end{typesetabstract}
+
+\tableofcontents
+
+\section{Introduction}
+One recurring problem when typesetting exams, specially in Engineering fields, is the need to have parameterized questions, specially parameterized schematics used in exam's questions. The intent of this is to allow the creation of repositories (one or more) with 'easily' parameterized text and/or graphic (\tsobj[pkg]{tikz}) questions, but not enforcing any style/format whatsoever, leaving it to the end user.
+
+The package offers
+\begin{itemize}
+  \item A set of commands to create and use repositories,
+  \item A set of commands to create and use 'questions' (code snippets) in a repository,
+  \item Question's customization, parametrization, based on \tsobj[pkg]{pgfkeys} and a set of associated macros.
+\end{itemize}
+
+\section{Package Options}\label{package options}
+\begin{describelist}{option}
+\describe{xtrakeys}{This allows to expand the set of pre-defined (\tsobj[pkg]{pgfkeys}) keys. See \ref{parameters}.}
+\describe{xtraidx}{This allows to expand the set of pre-defined (\tsobj[pkg]{pgfkeys}) indexes per key. See \ref{parameters}.}
+\describe{no defs}{(default: false). This changes the parametrization strategy suppressing the creation of ``keys commands''.}
+\describe{no alias}{(default: false). This suppress the creation of Question's aliases (see \ref{question definition}), handy when one wants to reduce the 'noise' when listing all currently known Questions.}
+\describe{in review}{(default: false). When using a question (see \ref{question use}), the question's associated remarks and annotations will be printed as well, if any.}
+\describe{undef color}{(default: red).  This sets the color used to indicated the use of a non defined parameter.  See \ref{parameters}.}
+\end{describelist}
+
+\section{Repositories}\label{repositories}
+Questions are stored in a set of repositories. Per default there is one such repository, named \tsobj[option]{default}. A repository can have an ``unlimited'' set of questions.
+
+\begin{codedescribe}{\defNewRepository,\selectRepository}
+\begin{codesyntax}%
+\tsmacro{\defNewRepository*}{new-repository}
+\tsmacro{\SelectRepository}{repository}
+\end{codesyntax}
+\tsobj{\defNewRepository} creates a new Repository, \tsobj[marg]{new-repository}. The starred version also switches to it, making it the ``current default''.
+\tsobj{\SelectRepository} activates \tsobj[marg]{repository} as the ``current default'' one.
+\end{codedescribe}
+
+\begin{tsremark}
+About repository's names: It can be almost anything, the name can contain strings normally not allowed in a macro name, like spaces, dots, two-dots and so on. an important exception the backslash is still an active character, meaning that if someone typesets \tsobj{\XYZ} as a repository, the value stored in \tsobj{\XYZ} will be used (if \tsobj{\XYZ} isn't defined this might raise a rather cryptic \LaTeXe\ error).
+\end{tsremark}
+
+\begin{tsremark}
+When creating a new repository, a warning is raised  in case \tsobj[marg]{new-repository} already exists. 
+When Selecting a repository, an error is raised if \tsobj[marg]{repository} doesn't exists.
+\end{tsremark}
+
+
+\section{Questions}
+There are two kind of questions (``code snippets''): Text ones (which can include \LaTeXe\ commands) and Graphical ones (which are assumed to be used inside a \tsobj[pkg]{tikz} environment). All questions can be parameterized (see \ref{parameters} below) with a set of predefined commands, viz-à-viz, \tsobj[pkg]{pgfkeys}.
+
+\subsection{Defining a Question}\label{question definition}
+\begin{codedescribe}{\defQuestion}
+\begin{codesyntax}%
+\tsobj{\defQuestion*}\tsargs[oarg]{repository}\tsargs[marg]{quest-name,code}\tsargs[oarg]{remarks}
+\end{codesyntax}
+\tsobj{\defQuestion} creates a new Question in \tsobj[oarg]{repository} (per default using the ``currently active'' one). \tsobj[marg]{quest-name} will be the associated question key, for later reference. \tsobj[marg]{code} will be the corresponding Question's code. \tsobj[oarg]{remarks} is just a small note associated with the Question. It won't be normally used/typeset, except if the \tsobj[option]{in review} option is being used, or when using the command \tsobj{\QuestionsList}.
+
+The starred version \tsobj{\defQuestion*} will create a ``text code'' one, whilst the non starred one \tsobj{\defQuestion} will create a non starred question. The real main difference between the two is regarding their later use (see bellow). Please note that there are \emph{two sets} of questions per repository. The ``starred'' (text ones) and the ``non-starred'' (graphical ones). They are fully distinct.
+\end{codedescribe}
+
+\begin{tsremark}
+About question's names: It can be almost anything, the name can contain strings normally not allowed in a macro name, like spaces, dots, two-dots and so on, including backslashes, meaning that if someone typesets \tsobj{\XYZ} as a question name, \tsobj{\XYZ} will be it's name: a backslash isn't an active character anymore and one can't use macros when defining a question's name.
+\end{tsremark}
+
+\begin{tsremark}
+An error is raised if \tsobj[marg]{repository} doesn't exist. In case the \tsobj[marg]{quest-name} already exists, it's code is silently replaced by the new one.
+\end{tsremark}
+
+
+\begin{codedescribe}{\defQuestionAlias}
+\begin{codesyntax}%
+\tsobj{\defQuestionAlias*}\tsargs[oarg]{repository}\tsargs[marg]{quest-alias,quest-name}
+\end{codesyntax}
+\tsobj{\defQuestionAlias} creates an alias, \tsobj[marg]{quest-alias} for a given question, \tsobj[marg]{quest-name}. As for \tsobj{\defQuestion}, the ``starred one'' regards text code ones and the ``non starred one'' regards the graphical ones.
+\end{codedescribe}
+
+\begin{tsremark}
+An error is raised if \tsobj[marg]{repository} or \tsobj[marg]{quest-name} doesn't exist.
+\end{tsremark}
+
+
+\subsection{Using a Question}\label{question use}
+\begin{codedescribe}{\ftikzQuestion,\tikzQuestion,\rawtikzQuestion}
+\begin{codesyntax}%
+\tsobj{\ftikzQuestion}\tsargs[parg]{scale}\tsargs[oarg]{repository}\tsargs[marg]{quest-name}\tsargs[oarg]{key=value list}\tsargs[xarg]{annotation}
+\tsobj{\tikzQuestion}\tsargs[parg]{scale}\tsargs[oarg]{repository}\tsargs[marg]{quest-name}\tsargs[oarg]{key=value list}\tsargs[xarg]{annotation}
+\tsobj{\rawtikzQuestion}\tsargs[oarg]{repository}\tsargs[marg]{quest-name}\tsargs[oarg]{key=value list}\tsargs[xarg]{annotation}
+\end{codesyntax}
+Those are the main commands to use a ``non starred'' (graphical) question.
+The \tsobj{\tikzQuestion} will display the Question's code inside a \tsobj[env]{tikzpicture} environment. \tsobj{\ftikzQuestion} will further nest the code inside a \tsobj[env]{center} environment (preparing it to be used inside a floating environment), whilst \tsobj{\rawtikzQuestion} will just display the code in a local group (in case one wants to use a different graphical environment, like SVG. The \tsobj[oarg]{annotation} will only be added if, and only if, the \tsobj[option]{in review} option is being used. The \tsobj[parg]{scale} factor, when present, is related to the current \tsobj{\textwidth}, so a factor of 0.25 will scale the width of the question to 1/4 of the text width. The \tsobj[oarg]{key=value list} is a set of \tsobj[pkg]{pgfkeys}, see \ref{parameters} below.
+\end{codedescribe}
+
+\begin{tsremark}
+An error is raised if \tsobj[marg]{repository} or \tsobj[marg]{quest-name} doesn't exist.
+\end{tsremark}
+
+\begin{codedescribe}{\textQuestion}
+\begin{codesyntax}%
+\tsobj{\textQuestion}\tsargs[oarg]{repository}\tsargs[marg]{quest-name}\tsargs[oarg]{key=value list}\tsargs[xarg]{annotation}
+\end{codesyntax}
+This is the command to use a ``starred'' (text) question.
+The \tsobj{\textQuestion} will just use the code in a local group. The \tsobj[oarg]{annotation} will only be added if, and only if, the \tsobj[option]{in review} option is being used. The \tsobj[oarg]{key=value list} is a set of \tsobj[pkg]{pgfkeys}, see \ref{parameters} below.
+\end{codedescribe}
+
+\begin{tsremark}
+An error is raised if \tsobj[marg]{repository} or \tsobj[marg]{quest-name} doesn't exist.
+\end{tsremark}
+
+\begin{codedescribe}{\QuestionsList}
+\begin{codesyntax}%
+\tsmacro{\QuestionsList}[repositories list]{}
+\end{codesyntax}
+\tsobj[oarg]{repositories list} is a comma separated list of repositories. For each repository,  all Questions will be typeset in a \tsobj[env]{describe} environment. If no \tsobj[oarg]{repositories list} is supplied, all repositories will be listed.
+\end{codedescribe}
+
+\begin{tsremark}
+An error is raised if a repository in \tsobj[marg]{repositories list} doesn't exist. To reduce the clutter (and number of questions listed) one should consider the use of the option \tsobj[option]{no alias}.
+\end{tsremark}
+
+
+\section{Parameters as pgfkeys and auxiliary macros.}\label{parameters}
+
+By default a set of \tsobj[pkg]{pgfkeys} and macros is defined as follow: \tsobj[marg]{ID}\tsobj[marg]{idx}. The predefined range of \tsobj[marg]{IDs} being \tsobj[key]{R,L,C,X,Y,Z,K,T,Q,EQ,V,I}. The predefined range of \tsobj[marg]{idx} spans from a, b, c up to z, aa, ab, ac up to az and, finally, ba, bb, bc up to bz. 
+\begin{tsremark}
+That means, one gets to use \tsobj[pkg]{pgfkeys} as, for example, Ra=200, Lca=500, Kbe=230 and so on. For each of the key's \tsobj[marg]{ID} there is (per default) a set of 3x26 keys. If one adds some 3 other \tsobj[marg]{idx} then one gets 6x26 keys per \tsobj[marg]{ID}.
+\end{tsremark}
+\begin{tsremark}
+The \tsobj[marg]{ID} can be extended with the \tsobj[option]{xtrakeys} option. For example with \tsobj[option,sep={,}]{xtrakeys=\{NN,B\}}, each extra key will add 3x26 keys (per default).
+\end{tsremark}
+\begin{tsremark}
+The \tsobj[marg]{idx} can be extended with the \tsobj[option]{xtraidx} option. For instance with \tsobj[option,sep={,}]{xtraidx=\{f,g\}} one gets fa, fb, fc up to fz, ga, gb, gc up to gz as well, a x26 set per extra idx.
+\end{tsremark}
+
+Unless the \tsobj[option]{no defs} option is defined, a corresponding macro (with the same name) will also be defined. For example, there is a macro \tsobj{\Ra} associated with the key \tsobj[key]{Ra}.
+All those macros/keys are initialized  as follow: ``math mode'' (\tsobj{\ensuremath}), $ID_{idx}$, so, for example, the key \tsobj[key]{Rab}, which can be accessed with the macro \tsobj{\Rab},  will be predefined as $R_{ab}$, \tsobj[key]{Lca} (\tsobj{\Lca}) will be predefined as $L_{ca}$, and so on.
+
+The idea is that, when using the commands in \ref{question use}, if one doesn't specify a \tsobj[oarg]{key=value list}, the default values will be ``en force'', and all one has to do (to change those values) is to set said list, which doesn't have to be complete, non assigned keys will keep their default value.
+
+Besides those default keys, one can set and use any key at will (in \tsobj[oarg]{key=value list}) non-existing keys will be created ``on the fly'' with the given name as the default value.
+
+\subsection{Assigning a new value to pre-defined keys}
+In fact, with each and every key there are 3 ways to assign a value to it \tsobj[oarg]{key}\,=\tsobj[value]{value}, \tsobj[oarg]{key*}\,=\tsobj[value]{value} and \tsobj[oarg]{key raw}\,=\tsobj[value]{value}. The difference being that \tsobj[oarg]{key raw} will assign whatever code/value to the key (and associated macro), \tsobj[oarg]{key*} will assign the code/value inside a math environment. 
+\begin{tsremark}[\color{red}warning:]
+\tsobj[oarg]{key}\,=\tsobj[value]{value} (without any specifier) will be the same as \tsobj[oarg]{key*} (default). But, if the option \tsobj[option]{no defs} is used, it will be equivalent to \tsobj[oarg]{key raw}.
+\end{tsremark}
+
+\subsection{Using a parameter key}
+When defining the \tsobj[marg]{code} of a question (see \ref{question definition}) one has two options to recover a key's value:
+\begin{itemize}
+  \item A macro named after the key itself (in case of the default keys, see above) and, or
+  \item the \tsobj{\QuestVal} command which allows to recover the value of both the default keys, as well as the ones defined on the fly.
+\end{itemize}
+\begin{tsremark}[\color{red}Warning:]
+If the option \tsobj[option]{no defs} is defined, the only option to recover a key's value is \tsobj{\QuestVal}. One better choose which style fits better, and keep it.
+\end{tsremark}
+
+
+\begin{codedescribe}{\QuestVal}
+\begin{codesyntax}%
+\tsmacro{\QuestVal}{IDidx}
+\tsmacro{\QuestVal}{key}
+\end{codesyntax}
+This will always recover the value of a key, regardless if the key is one of the pre-defined ones (in the form \tsobj[marg]{IDidx} or a ``on the fly'' one.
+If the key didn't got (re)defined with the \tsobj[oarg]{key=value list}, this will return the key/paramenter default value. In the case of a ``on the fly'' key, it will be the key's name in red (or the color set up with the \tsobj[option]{undef color} option, see \ref{package options}).
+
+This should be safe in most situations where \tsobj{\pgfkeys} command can be used. Though, the safest, and most robust, way to use a parameter/key is using it's related macro.
+\end{codedescribe}
+
+\section{Example of Use}
+
+\subsection{Package Options}
+\begin{codestore}[pack.options A]
+\usepackage{tikzquests}
+\end{codestore}
+
+\tscode*[codeprefix={Package Options},emph={pgfkeysearchvalueof}]{pack.options A}
+This is the default case, in which both \tsobj{\QuestVal} and (for default keys) associated macro name can be used to retrieve a key/parameter value.
+
+\begin{codestore}[pack.options B]
+\usepackage[xtrakeys={EX,N},xtraidx={f,h},undef color={blue},no defs]{tikzquests}
+\end{codestore}
+
+\tscode*[codeprefix={Package Options},emph={pgfkeysearchvalueof}]{pack.options B}
+
+In this case, one will get the following set of keys
+
+\begin{itemize}[nosep]
+\item Ra, Rb ... Rz, Rab, Rab ... Raz .... \emph{Rfa, Rfb ... Rfz, Rha, Rhb ... Rhz}
+\item .... all other default sets of keys, plus
+\item EXa, EXb ... EXz, EXab, EXab ... EXaz .... \emph{EXfa, EXfb ... EXfz, EXha, EXhb ... EXhz}
+\item Na, Nb ... Nz, Nab, Nab ... Naz .... \emph{Nfa, Nfb ... Nfz, Nha, Nhb ... Nhz}
+\end{itemize}
+
+Besides that, the undefined color will be blue and no additional macro will be defined, in which case on has to use \tsobj{\QuestVal} to recover the value of a key/parameter.
+
+\begin{codestore}[pack.options C]
+\usepackage[no alias, in review]{tikzquests}
+\end{codestore}
+
+\tscode*[codeprefix={Package Options},emph={pgfkeysearchvalueof}]{pack.options C}
+In this case, no alias will be defined (the command \tsobj{\defQuestionAlias} will be ignored), and when using \tsobj{\tikzQuestion} (and similar) the question's remarks (defined by \tsobj{\defQuestion}) and annotations (from \tsobj{\tikzQuestion}) will be printed. The \tsobj[option]{no alias} is specially useful when using the command \tsobj{\QuestionsList}.
+
+\subsection{A More Complete Example}
+In the code below, an extra repository will be set (besides the default one) and two questions (a starred, text, and non starred, graphics) will be defined for each repository.
+
+\begin{codestore}[DefQuestion]
+% A repository name can be just about anything.
+% the star makes sure 'Repo 2' is now the active/default one.
+\defNewRepository*{Repo 2} 
+
+% quest names are even more flexible than a repository one
+% the star implies this is a text one.
+\defQuestion*{Quest A:1}{
+ In the following circuit, assuming $\beta \approx \QuestVal{Beta}$ and that $V_{be} \approx 0.65V$, find the value of $R_c$ such that the small signal gain is \QuestVal{Gain}.
+}[That would be a question enunciate.]
+
+%% Note the use of the macros \Ra, \Rb, \Rc, \Rd, \Vi, \Vbc and \Vo 
+\defQuestion[Repo 2]{Elect. 1a}{
+		\draw
+		(0,0) coordinate(A) to[V,invert,l=\Vi] ++(0,3) coordinate(V)
+      to[R=\Ra] ++(2,0) 
+      to[C] ++(2,0) coordinate(B) 
+      -- ++(1,0) node[npn,anchor=B] (T1){}
+		(A) -- (A -| B) coordinate(Ba) to[R=\Rb] (B) to[R=\Rg] ++(0,3) coordinate(C)
+		(T1.E) to[R,l=\Rc] (T1.E |- A) -- (A)
+		(T1.C) to[R,l_=\Rd] (T1.C |- C) -- (C -| A) -- ++(-2,0) coordinate(X) to[V,l=\Vbc] (X |- A) -- (A)
+    (T1.C) -- ++(1.5,0) node[ocirc]{} coordinate(k) to[open,v=\Vo] (k |- A) node[ocirc]{} -- (A)
+		 ;
+}[this is a CircuiTikZ example]
+
+%switching repositories
+\SelectRepository{default} 
+
+% Note that, since it is a different repository, there is no name crashing.
+\defQuestion*{Quest A:1}{
+ In the following circuit, assuming $\beta \approx \QuestVal{Beta}$ and that $V_{be} \approx 0.65V$, find the value of \Rg \ such that the DC level of \Vo \ is equal to \QuestVal{DC level}.
+}[Just for the sake of it.]
+
+%% Note the use of the macros \Ra, \Rb, \Rc, \Rd, \Vi, \Vbc and \Vo 
+\defQuestion{Elect. 1b}{
+		\draw
+		(0,0) coordinate(A) to[V,invert,l=\Vi] ++(0,3) coordinate(V)
+      to[R=\Ra] ++(2,0) 
+      to[C] ++(2,0) coordinate(B) 
+      -- ++(1,0) node[pnp,anchor=B] (T1){}
+		(A) -- (A -| B) coordinate(Ba) to[R=\Rb] (B) to[R=\Rg] ++(0,3) coordinate(C)
+		(T1.C) to[R,l=\Rc] (T1.C |- A) -- (A)
+		(T1.E) to[R,l_=\Rd] (T1.E |- C) -- (C -| A) -- ++(-2,0) coordinate(X) to[V,l=\Vbc] (X |- A) -- (A)
+    (T1.C) -- ++(1.5,0) node[ocirc]{} coordinate(k) to[open,v=\Vo] (k |- A) node[ocirc]{} -- (A)
+		 ;
+}[this is a CircuiTikZ example]
+\end{codestore}
+
+\tscode*[codeprefix={Questions Definitions},resultprefix={Result: \emph{no output}},emph={Ra,Rb,Rc,Rd,Rg,Vi,Vbc,Vo,QuestVal,Beta,Gain,raw,DC,level},emph2={defQuestion,SelectRepository,defNewRepository},basicstyle={\scriptsize\ttfamily}]{DefQuestion}
+
+%%% Oh well, stcontents does have some limitations... That's why the code is replicated below.
+
+\defNewRepository*{Repo 2} 
+% quest names are even more flexible than a repository one
+% the star implies this is a text one.
+\defQuestion*{Quest A:1}{
+ In the following circuit, assuming $\beta \approx \QuestVal{Beta}$ and that $V_{be} \approx 0.65V$, find the value of $R_c$ such that the small signal gain is \QuestVal{Gain}.
+}[That would be a question enunciate.]
+
+%% Note the use of the macros \Ra, \Rb, \Rc, \Rd, \Vi, \Vbc and \Vo 
+\defQuestion[Repo 2]{Elect. 1a}{
+		\draw
+		(0,0) coordinate(A) to[V,invert,l=\Vi] ++(0,3) coordinate(V)
+      to[R=\Ra] ++(2,0) 
+      to[C] ++(2,0) coordinate(B) 
+      -- ++(1,0) node[npn,anchor=B] (T1){}
+		(A) -- (A -| B) coordinate(Ba) to[R=\Rb] (B) to[R=\Rg] ++(0,3) coordinate(C)
+		(T1.E) to[R,l=\Rc] (T1.E |- A) -- (A)
+		(T1.C) to[R,l_=\Rd] (T1.C |- C) -- (C -| A) -- ++(-2,0) coordinate(X) to[V,l=\Vbc] (X |- A) -- (A)
+    (T1.C) -- ++(1.5,0) node[ocirc]{} coordinate(k) to[open,v=\Vo] (k |- A) node[ocirc]{} -- (A)
+		 ;
+}[this is a CircuiTikZ example]
+
+%switching repositories
+\SelectRepository{default} 
+
+% Note that, since it is a different repository, there is no name crashing.
+\defQuestion*{Quest A:1}{
+ In the following circuit, assuming $\beta \approx \QuestVal{Beta}$ and that $V_{be} \approx 0.65V$, find the value of \Rg \ such that the DC level of \Vo \ is equal to \QuestVal{DC level}.
+}[Just for the sake of it.]
+
+%% Note the use of the macros \Ra, \Rb, \Rc, \Rd, \Vi, \Vbc and \Vo 
+\defQuestion{Elect. 1b}{
+		\draw
+		(0,0) coordinate(A) to[V,invert,l=\Vi] ++(0,3) coordinate(V)
+      to[R=\Ra] ++(2,0) 
+      to[C] ++(2,0) coordinate(B) 
+      -- ++(1,0) node[pnp,anchor=B] (T1){}
+		(A) -- (A -| B) coordinate(Ba) to[R=\Rb] (B) to[R=\Rg] ++(0,3) coordinate(C)
+		(T1.C) to[R,l=\Rc] (T1.C |- A) -- (A)
+		(T1.E) to[R,l_=\Rd] (T1.E |- C) -- (C -| A) -- ++(-2,0) coordinate(X) to[V,l=\Vbc] (X |- A) -- (A)
+    (T1.C) -- ++(1.5,0) node[ocirc]{} coordinate(k) to[open,v=\Vo] (k |- A) node[ocirc]{} -- (A)
+		 ;
+}[this is a CircuiTikZ example]
+
+
+Once Questions are defined one can use them, for instance, using just the default parameter's values.
+
+\begin{codestore}[QuestionDefault]
+Choose one of the following two questions:
+
+\begin{enumerate}
+  \item \textQuestion[Repo 2]{Quest A:1}<just a last minute note about this>\par
+  \ftikzQuestion(0.4)[Repo 2]{Elect. 1a}
+  
+  \item \textQuestion[default]{Quest A:1}<just for the sake of it...>\par
+  \ftikzQuestion(0.4)[default]{Elect. 1b}
+\end{enumerate}
+\end{codestore}
+
+\tscode*[codeprefix={Questions Defaults},resultprefix={Result: \emph{no output}},emph={Ra,Rb,Rc,Rd,Rg,Vi,Vbc,Vo,QuestVal,Beta,Gain,raw,DC,level},emph2={textQuestion,ftikzQuestion},basicstyle={\scriptsize\ttfamily}]{QuestionDefault}
+
+
+\hrule\relax
+
+Choose one of the following two questions:
+
+\begin{enumerate}
+  \item \textQuestion[Repo 2]{Quest A:1}<just a last minute note about this>\par
+  \ftikzQuestion(0.4)[Repo 2]{Elect. 1a}
+  
+  \item \textQuestion[default]{Quest A:1}<just for the sake of it...>\par
+  \ftikzQuestion(0.4)[default]{Elect. 1b}
+\end{enumerate}
+
+Finally, one can use those same questions, setting it's parameters:
+
+\begin{codestore}[QuestionUse]
+Choose one of the following two questions:
+
+\begin{enumerate}
+  \item \textQuestion[Repo 2]{Quest A:1}[Beta=200,Gain=4,Ra=50\Omega]<just a last minute note about this>\par
+  \ftikzQuestion(0.4)[Repo 2]{Elect. 1a}[Ra=50\Omega,Rb*=100\Omega,Rg raw=100,Rc=100,Rd=R_c,Vbc=18V,Vi=v_i(t),Vo=v_o(t)]
+  
+  \item \textQuestion[default]{Quest A:1}[Beta=200,DC level=8V,Rg=R_{b1},Vo=v_o(t)]<just for the sake of it...>\par
+  \ftikzQuestion(0.4)[default]{Elect. 1b}[Ra=50\Omega,Rb*=100\Omega,Rg=R_{b1},Rc=100,Rd=200\Omega,Vbc=18V,Vi=v_i(t),Vo=v_o(t)]
+\end{enumerate}
+\end{codestore}
+
+\tscode*[codeprefix={Questions Using Parameters},resultprefix={Result: \emph{no output}},emph={Ra,Rb,Rc,Rd,Rg,Vi,Vbc,Vo,QuestVal,Beta,Gain,raw,DC,level},emph2={textQuestion,ftikzQuestion},basicstyle={\scriptsize\ttfamily}]{QuestionUse}
+
+\hrule\relax
+
+Choose one of the following two questions:
+
+\begin{enumerate}
+  \item \textQuestion[Repo 2]{Quest A:1}[Beta=200,Gain=4,Ra=50\Omega]<just a last minute note about this>\par
+  \ftikzQuestion(0.4)[Repo 2]{Elect. 1a}[Ra=50\Omega,Rb*=100\Omega,Rg raw=100,Rc=100,Rd=R_c,Vbc=18V,Vi=v_i(t),Vo=v_o(t)]
+  
+  \item \textQuestion[default]{Quest A:1}[Beta=200,DC level=8V,Rg=R_{b1},Vo=v_o(t)]<just for the sake of it...>\par
+  \ftikzQuestion(0.4)[default]{Elect. 1b}[Ra=50\Omega,Rb*=100\Omega,Rg=R_{b1},Rc=100,Rd=200\Omega,Vbc=18V,Vi=v_i(t),Vo=v_o(t)]
+\end{enumerate}
+
+\end{document} 

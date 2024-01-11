@@ -15,7 +15,7 @@
 %%
 %% The Current Maintainer of this work is Alceu Frigeri
 %%
-%% This is version {1.0} {2024/01/03}
+%% This is version {1.1} {2024/01/11}
 %%
 %% The list of files that compose this work can be found in the README.md file at
 %% https://ctan.org/pkg/tikzquests
@@ -175,16 +175,22 @@ The \tsobj[marg]{idx} can be extended with the \tsobj[option]{xtraidx} option. F
 \end{tsremark}
 
 Unless the \tsobj[option]{no defs} option is defined, a corresponding macro (with the same name) will also be defined. For example, there is a macro \tsobj{\Ra} associated with the key \tsobj[key]{Ra}.
-All those macros/keys are initialized  as follow: ``math mode'' (\tsobj{\ensuremath}), $ID_{idx}$, so, for example, the key \tsobj[key]{Rab}, which can be accessed with the macro \tsobj{\Rab},  will be predefined as $R_{ab}$, \tsobj[key]{Lca} (\tsobj{\Lca}) will be predefined as $L_{ca}$, and so on.
+All those macros/keys are initialized  as follow (math mode) \tsverb{\ensuremath{<ID>_{<idx>}}}, resulting in $ID_{idx}$. So, for example, the key \tsobj[key]{Rab}, which can be accessed with the macro \tsobj{\Rab},  will be predefined as $R_{ab}$, \tsobj[key]{Lca} (\tsobj{\Lca}) will be predefined as $L_{ca}$, and so on.
 
-The idea is that, when using the commands in \ref{question use}, if one doesn't specify a \tsobj[oarg]{key=value list}, the default values will be ``en force'', and all one has to do (to change those values) is to set said list, which doesn't have to be complete, non assigned keys will keep their default value.
+The idea is that, when using the commands in \ref{question use}, if one doesn't specify a \tsobj[oarg]{key=value list}, the default values will be en force, and all one has to do (to change those values) is to set said list, which doesn't have to be complete, non assigned keys will keep their default value.
 
 Besides those default keys, one can set and use any key at will (in \tsobj[oarg]{key=value list}) non-existing keys will be created ``on the fly'' with the given name as the default value.
 
 \subsection{Assigning a new value to pre-defined keys}
-In fact, with each and every key there are 3 ways to assign a value to it \tsobj[oarg]{key}\,=\tsobj[value]{value}, \tsobj[oarg]{key*}\,=\tsobj[value]{value} and \tsobj[oarg]{key raw}\,=\tsobj[value]{value}. The difference being that \tsobj[oarg]{key raw} will assign whatever code/value to the key (and associated macro), \tsobj[oarg]{key*} will assign the code/value inside a math environment. 
+In fact, with each and every predefined key there are 3 ways to assign a value to it \tsobj[oarg]{key}\,=\tsobj[value]{value}, \tsobj[oarg]{key*}\,=\tsobj[value]{value} and \tsobj[oarg]{key raw}\,=\tsobj[value]{value}. The difference being that \tsobj[oarg]{key raw} will assign whatever code/value to the key (and associated macro), \tsobj[oarg]{key*} will assign the code/value inside a math environment. 
 \begin{tsremark}[\color{red}warning:]
 \tsobj[oarg]{key}\,=\tsobj[value]{value} (without any specifier) will be the same as \tsobj[oarg]{key*} (default). But, if the option \tsobj[option]{no defs} is used, it will be equivalent to \tsobj[oarg]{key raw}.
+\end{tsremark}
+
+\subsection{Assigning a value to new keys}
+When using  \tsobj[oarg]{key}\,=\tsobj[value]{value}, if the \tsobj[oarg]{key} isn't one of the pre-defined ones, then \tsobj[value]{value} will be assigned ``as is'' to \tsobj[oarg]{key}.
+\begin{tsremark}[\color{red}warning:]
+Note that, in this case there are no \tsobj[oarg,sep=or]{key*,key raw} equivalents. 
 \end{tsremark}
 
 \subsection{Using a parameter key}
@@ -203,13 +209,13 @@ If the option \tsobj[option]{no defs} is defined, the only option to recover a k
 \tsmacro{\QuestVal}{IDidx}
 \tsmacro{\QuestVal}{key}
 \end{codesyntax}
-This will always recover the value of a key, regardless if the key is one of the pre-defined ones (in the form \tsobj[marg]{IDidx} or a ``on the fly'' one.
-If the key didn't got (re)defined with the \tsobj[oarg]{key=value list}, this will return the key/paramenter default value. In the case of a ``on the fly'' key, it will be the key's name in red (or the color set up with the \tsobj[option]{undef color} option, see \ref{package options}).
+This will always recover the value of a key, regardless if the key is one of the pre-defined ones (in the form \tsobj[marg]{IDidx} or a ``on the fly'' one, \tsobj[marg]{key}.
+If the key didn't got (re)defined with the \tsobj[oarg]{key=value list}, this will return the key/parameter default value. In the case of a ``on the fly'' key, it will be the key's name in red (or the color set up with the \tsobj[option]{undef color} option, see \ref{package options}).
 
 This should be safe in most situations where \tsobj{\pgfkeys} command can be used. Though, the safest, and most robust, way to use a parameter/key is using it's related macro.
 \end{codedescribe}
 
-\section{Example of Use}
+\section{Examples of Use}
 
 \subsection{Package Options}
 \begin{codestore}[pack.options A]
@@ -244,7 +250,7 @@ Besides that, the undefined color will be blue and no additional macro will be d
 In this case, no alias will be defined (the command \tsobj{\defQuestionAlias} will be ignored), and when using \tsobj{\tikzQuestion} (and similar) the question's remarks (defined by \tsobj{\defQuestion}) and annotations (from \tsobj{\tikzQuestion}) will be printed. The \tsobj[option]{no alias} is specially useful when using the command \tsobj{\QuestionsList}.
 
 \subsection{A More Complete Example}
-In the code below, an extra repository will be set (besides the default one) and two questions (a starred, text, and non starred, graphics) will be defined for each repository.
+In the following code, an extra repository will be set (besides the default one) and two questions (a starred, text, and non starred, graphics) will be defined for each repository.
 
 \begin{codestore}[DefQuestion]
 % A repository name can be just about anything.
@@ -265,6 +271,7 @@ In the code below, an extra repository will be set (besides the default one) and
       to[C] ++(2,0) coordinate(B) 
       -- ++(1,0) node[npn,anchor=B] (T1){}
 		(A) -- (A -| B) coordinate(Ba) to[R=\Rb] (B) to[R=\Rg] ++(0,3) coordinate(C)
+    (B) node[circ]{}
 		(T1.E) to[R,l=\Rc] (T1.E |- A) -- (A)
 		(T1.C) to[R,l_=\Rd] (T1.C |- C) -- (C -| A) -- ++(-2,0) coordinate(X) to[V,l=\Vbc] (X |- A) -- (A)
     (T1.C) -- ++(1.5,0) node[ocirc]{} coordinate(k) to[open,v=\Vo] (k |- A) node[ocirc]{} -- (A)
@@ -287,6 +294,7 @@ In the code below, an extra repository will be set (besides the default one) and
       to[C] ++(2,0) coordinate(B) 
       -- ++(1,0) node[pnp,anchor=B] (T1){}
 		(A) -- (A -| B) coordinate(Ba) to[R=\Rb] (B) to[R=\Rg] ++(0,3) coordinate(C)
+    (B) node[circ]{}
 		(T1.C) to[R,l=\Rc] (T1.C |- A) -- (A)
 		(T1.E) to[R,l_=\Rd] (T1.E |- C) -- (C -| A) -- ++(-2,0) coordinate(X) to[V,l=\Vbc] (X |- A) -- (A)
     (T1.C) -- ++(1.5,0) node[ocirc]{} coordinate(k) to[open,v=\Vo] (k |- A) node[ocirc]{} -- (A)
@@ -313,8 +321,9 @@ In the code below, an extra repository will be set (besides the default one) and
       to[C] ++(2,0) coordinate(B) 
       -- ++(1,0) node[npn,anchor=B] (T1){}
 		(A) -- (A -| B) coordinate(Ba) to[R=\Rb] (B) to[R=\Rg] ++(0,3) coordinate(C)
-		(T1.E) to[R,l=\Rc] (T1.E |- A) -- (A)
-		(T1.C) to[R,l_=\Rd] (T1.C |- C) -- (C -| A) -- ++(-2,0) coordinate(X) to[V,l=\Vbc] (X |- A) -- (A)
+    (B) node[circ]{}
+		(T1.E) to[R,l_=\Rc] (T1.E |- A) -- (A)
+		(T1.C) to[R,l=\Rd] (T1.C |- C) -- (C -| A) -- ++(-2,0) coordinate(X) to[V,l=\Vbc] (X |- A) -- (A)
     (T1.C) -- ++(1.5,0) node[ocirc]{} coordinate(k) to[open,v=\Vo] (k |- A) node[ocirc]{} -- (A)
 		 ;
 }[this is a CircuiTikZ example]
@@ -335,11 +344,12 @@ In the code below, an extra repository will be set (besides the default one) and
       to[C] ++(2,0) coordinate(B) 
       -- ++(1,0) node[pnp,anchor=B] (T1){}
 		(A) -- (A -| B) coordinate(Ba) to[R=\Rb] (B) to[R=\Rg] ++(0,3) coordinate(C)
-		(T1.C) to[R,l=\Rc] (T1.C |- A) -- (A)
-		(T1.E) to[R,l_=\Rd] (T1.E |- C) -- (C -| A) -- ++(-2,0) coordinate(X) to[V,l=\Vbc] (X |- A) -- (A)
+    (B) node[circ]{}
+		(T1.C) to[R,l_=\Rc] (T1.C |- A) -- (A)
+		(T1.E) to[R,l=\Rd] (T1.E |- C) -- (C -| A) -- ++(-2,0) coordinate(X) to[V,l=\Vbc] (X |- A) -- (A)
     (T1.C) -- ++(1.5,0) node[ocirc]{} coordinate(k) to[open,v=\Vo] (k |- A) node[ocirc]{} -- (A)
 		 ;
-}[this is a CircuiTikZ example]
+}[this is another CircuiTikZ example]
 
 
 Once Questions are defined one can use them, for instance, using just the default parameter's values.
@@ -359,7 +369,7 @@ Choose one of the following two questions:
 \tscode*[codeprefix={Questions Defaults},resultprefix={Result: \emph{no output}},emph={Ra,Rb,Rc,Rd,Rg,Vi,Vbc,Vo,QuestVal,Beta,Gain,raw,DC,level},emph2={textQuestion,ftikzQuestion},basicstyle={\scriptsize\ttfamily}]{QuestionDefault}
 
 
-\hrule\relax
+\hrule\relax\vspace{0.5ex}
 
 Choose one of the following two questions:
 
@@ -371,35 +381,35 @@ Choose one of the following two questions:
   \ftikzQuestion(0.4)[default]{Elect. 1b}
 \end{enumerate}
 
-Finally, one can use those same questions, setting it's parameters:
+Finally, one can use these same questions, setting it's parameters:
 
 \begin{codestore}[QuestionUse]
 Choose one of the following two questions:
 
 \begin{enumerate}
   \item \textQuestion[Repo 2]{Quest A:1}[Beta=200,Gain=4,Ra=50\Omega]<just a last minute note about this>\par
-  \ftikzQuestion(0.4)[Repo 2]{Elect. 1a}[Ra=50\Omega,Rb*=100\Omega,Rg raw=100,Rc=100,Rd=R_c,Vbc=18V,Vi=v_i(t),Vo=v_o(t)]
+  \ftikzQuestion(0.4)[Repo 2]{Elect. 1a}[Ra=50\Omega,Rb*=100\Omega,Rg raw=$100\Omega$,Rc=100\Omega,Rd=R_c,Vbc=18V,Vi=v_i(t),Vo=v_o(t)]
   
   \item \textQuestion[default]{Quest A:1}[Beta=200,DC level=8V,Rg=R_{b1},Vo=v_o(t)]<just for the sake of it...>\par
-  \ftikzQuestion(0.4)[default]{Elect. 1b}[Ra=50\Omega,Rb*=100\Omega,Rg=R_{b1},Rc=100,Rd=200\Omega,Vbc=18V,Vi=v_i(t),Vo=v_o(t)]
+  \ftikzQuestion(0.4)[default]{Elect. 1b}[Ra=50\Omega,Rb*=100\Omega,Rg=R_{b1},Rc=100\Omega,Rd=200\Omega,Vbc=18V,Vi=v_i(t),Vo=v_o(t)]
 \end{enumerate}
 \end{codestore}
 
 \tscode*[codeprefix={Questions Using Parameters},resultprefix={Result: \emph{no output}},emph={Ra,Rb,Rc,Rd,Rg,Vi,Vbc,Vo,QuestVal,Beta,Gain,raw,DC,level},emph2={textQuestion,ftikzQuestion},basicstyle={\scriptsize\ttfamily}]{QuestionUse}
 
-\hrule\relax
+\hrule\relax\vspace{0.5ex}
 
 Choose one of the following two questions:
 
 \begin{enumerate}
   \item \textQuestion[Repo 2]{Quest A:1}[Beta=200,Gain=4,Ra=50\Omega]<just a last minute note about this>\par
-  \ftikzQuestion(0.4)[Repo 2]{Elect. 1a}[Ra=50\Omega,Rb*=100\Omega,Rg raw=100,Rc=100,Rd=R_c,Vbc=18V,Vi=v_i(t),Vo=v_o(t)]
+  \ftikzQuestion(0.4)[Repo 2]{Elect. 1a}[Ra=50\Omega,Rb*=100\Omega,Rg raw=$100\Omega$,Rc=100\Omega,Rd=R_c,Vbc=18V,Vi=v_i(t),Vo=v_o(t)]
   
   \item \textQuestion[default]{Quest A:1}[Beta=200,DC level=8V,Rg=R_{b1},Vo=v_o(t)]<just for the sake of it...>\par
-  \ftikzQuestion(0.4)[default]{Elect. 1b}[Ra=50\Omega,Rb*=100\Omega,Rg=R_{b1},Rc=100,Rd=200\Omega,Vbc=18V,Vi=v_i(t),Vo=v_o(t)]
+  \ftikzQuestion(0.4)[default]{Elect. 1b}[Ra=50\Omega,Rb*=100\Omega,Rg=R_{b1},Rc=100\Omega,Rd=200\Omega,Vbc=18V,Vi=v_i(t),Vo=v_o(t)]
 \end{enumerate}
 
-\subsection{Creating a Questions List}
+\subsection{Creating a Questions' List}
 To round it up, using the \tsobj{\QuestionsList} (see \ref{question use}):
 \begin{codestore}[Qlist]
 \QuestionsList
@@ -407,7 +417,7 @@ To round it up, using the \tsobj{\QuestionsList} (see \ref{question use}):
 
 \tscode*{Qlist}
 
-One get's:
+One get's: 
 
 %and then
 \QuestionsList

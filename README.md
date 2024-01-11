@@ -68,7 +68,7 @@ The Current Maintainer of this work is Alceu Frigeri
 
 -------------
 * Version 1.1 (this)
-    - Documentation improvements and typos.
+    - Documentation typos, and issue #1.
 
 * Version 1.0
     - Initial release by CTAN.

@@ -12,7 +12,7 @@
 %%
 %% The Current Maintainer of this work is Alceu Frigeri
 %%
-%% This is version {1.1} {2024/01/11}
+%% This is version {1.2} {2025/01/09}
 %%
 %% The list of files that compose this work can be found in the README.md file at
 %% https://ctan.org/pkg/tikzquests
@@ -27,8 +27,8 @@
 
 \ProvidesExplPackage
     {tikzquests}
-    {2024/01/11}
-    {1.1}
+    {2025/01/09}
+    {1.2}
     {A Simple Framework for (tikz/text) Parametric Questions}
 
 \ExplSyntaxOn
@@ -42,8 +42,8 @@
   {
      name        .code:n = {tikzquests} ,
      prefix      .code:n = {tikzquests} ,
-     date        .code:n = {2024/01/11},
-     version     .code:n = {1.1} ,
+     date        .code:n = {2025/01/09},
+     version     .code:n = {1.2} ,
      description .code:n = {A Simple Framework for (tikz/text) Parametric Questions}
   }
 \cs_if_exist:NF \PkgInfo 
@@ -134,7 +134,8 @@
 
 \seq_new:N  \l__tikzquests_repositories_seq
 \tl_new:N   \l__tikzquests_active_repository_tl
-\seq_new:N  \l__tikzquests_tmp_seq
+\seq_new:N  \l__tikzquests_tmpa_seq
+\seq_new:N  \l__tikzquests_tmpb_seq
 \tl_new:N   \l__tikzquests_tmp_tl  
 
 \cs_new_protected:Npn \__tikzquests_select_repository:n #1
@@ -155,10 +156,10 @@
         \msg_warning:nnne {tikzquests}{repository already defined}{new~01}{#2}
       }
       { 
-        \prop_new:c {l__tikzquests_ #2 _tikzrepo_prop}
-        \prop_new:c {l__tikzquests_ #2 _tikzrepo_remarks_prop}
-        \prop_new:c {l__tikzquests_ #2 _textrepo_prop}
-        \prop_new:c {l__tikzquests_ #2 _textrepo_remarks_prop}
+        \prop_new_linked:c {l__tikzquests_ #2 _tikzrepo_prop}
+        \prop_new_linked:c {l__tikzquests_ #2 _tikzrepo_remarks_prop}
+        \prop_new_linked:c {l__tikzquests_ #2 _textrepo_prop}
+        \prop_new_linked:c {l__tikzquests_ #2 _textrepo_remarks_prop}
         \seq_put_right:Nn \l__tikzquests_repositories_seq {#2}
       }
     \bool_if:nT {#1}
@@ -365,19 +366,41 @@
   {
     \tl_if_blank:nTF {#1}
       { 
-        \seq_set_eq:NN \l__tikzquests_tmp_seq \l__tikzquests_repositories_seq
+        \seq_set_eq:NN \l__tikzquests_tmpb_seq \l__tikzquests_repositories_seq
       }
       {
-        \seq_set_from_clist:Nn \l__tikzquests_tmp_seq {#1}
+        \seq_set_from_clist:Nn \l__tikzquests_tmpb_seq {#1}
       }
-    \seq_remove_duplicates:N \l__tikzquests_tmp_seq
-    \seq_sort:Nn \l__tikzquests_tmp_seq
+      
+    \seq_map_inline:Nn \l__tikzquests_tmpb_seq
+      {
+        \regex_match:nnTF {/$}{##1}
+          {
+            \tl_set:Nn \l_tmpa_tl {##1}
+            \regex_replace_once:nnN {/$}{} \l_tmpa_tl
+            \seq_put_right:Nn \l__tikzquests_tmpa_seq {\l_tmpa_tl}
+            \seq_map_inline:Nn \l__tikzquests_repositories_seq
+              {
+                \regex_match:nnTF {##1}{####1}
+                  {
+                    \seq_put_right:Nn \l__tikzquests_tmpa_seq {####1}
+                  }
+                  {}
+              }
+          }
+          {
+            \seq_put_right:Nn \l__tikzquests_tmpa_seq {##1}
+          }
+      }      
+      
+    \seq_remove_duplicates:N \l__tikzquests_tmpa_seq
+    \seq_sort:Nn \l__tikzquests_tmpa_seq
       {
         \str_compare:eNeTF { ##1 } > { ##2 }
           { \sort_return_swapped: }
           { \sort_return_same: }
       }
-    \seq_map_inline:Nn \l__tikzquests_tmp_seq
+    \seq_map_inline:Nn \l__tikzquests_tmpa_seq
       {
         \prop_if_exist:cTF {l__tikzquests_ ##1 _tikzrepo_prop}
         {      

@@ -15,7 +15,7 @@
 %%
 %% The Current Maintainer of this work is Alceu Frigeri
 %%
-%% This is version {1.1} {2024/01/11}
+%% This is version {1.2} {2025/01/09}
 %%
 %% The list of files that compose this work can be found in the README.md file at
 %% https://ctan.org/pkg/tikzquests
@@ -47,7 +47,7 @@ This is a framework for building parametric questions' repositories, which can b
 \tableofcontents
 
 \section{Introduction}
-One recurring problem when typesetting exams, specially in Engineering fields, is the need to have parameterized questions, specially parameterized schematics used in exam's questions. The intent of this is to allow the creation of repositories (one or more) with 'easily' parameterized text and/or graphic (\tsobj[pkg]{tikz}) questions, but not enforcing any style/format whatsoever, leaving it to the end user.
+One recurring problem when typesetting exams, specially in Engineering fields, is the need to have parameterized questions, specially parameterized schematics used in exam's questions. The intent of this is to allow the creation of such repositories (one or more) with 'easily' parameterized text and/or graphic (\tsobj[pkg]{tikz}) questions, without enforcing any style/format whatsoever, leaving it to the end user.
 
 The package offers
 \begin{itemize}
@@ -76,11 +76,18 @@ Questions are stored in a set of repositories. Per default there is one such rep
 \end{codesyntax}
 \tsobj{\defNewRepository} creates a new Repository, \tsobj[marg]{new-repository}. The starred version also switches to it, making it the ``current default''.
 \tsobj{\SelectRepository} activates \tsobj[marg]{repository} as the ``current default'' one.
+
+It is possible to construct a tree of related repositories by using a slash, ``/'', like ``repoA'', ``repoA/subA'', ``repoA/subB'', ``repoA/subC'', which can be handy when listing the questions of a repository, see \ref{quest list}.
 \end{codedescribe}
 
 \begin{tsremark}
 About repository's names: It can be almost anything, the name can contain strings normally not allowed in a macro name, like spaces, dots, two-dots and so on. an important exception the backslash is still an active character, meaning that if someone typesets \tsobj{\XYZ} as a repository, the value stored in \tsobj{\XYZ} will be used (if \tsobj{\XYZ} isn't defined this might raise a rather cryptic \LaTeXe\ error).
 \end{tsremark}
+
+\begin{tsremark}
+Do not create a repository with an ending slash, like ``repoName/''. Given the way sub-repositories are define, it will render impossible to list this repository questions, see \ref{quest list}
+\end{tsremark}
+
 
 \begin{tsremark}
 When creating a new repository, a warning is raised  in case \tsobj[marg]{new-repository} already exists. 
@@ -149,7 +156,7 @@ The \tsobj{\textQuestion} will just use the code in a local group. The \tsobj[oa
 An error is raised if \tsobj[marg]{repository} or \tsobj[marg]{quest-name} doesn't exist.
 \end{tsremark}
 
-\begin{codedescribe}{\QuestionsList}
+\begin{codedescribe}{\QuestionsList}\label{quest list}
 \begin{codesyntax}%
 \tsmacro{\QuestionsList}[repositories list]{}
 \end{codesyntax}
@@ -157,9 +164,12 @@ An error is raised if \tsobj[marg]{repository} or \tsobj[marg]{quest-name} doesn
 \end{codedescribe}
 
 \begin{tsremark}
-An error is raised if a repository in \tsobj[marg]{repositories list} doesn't exist. To reduce the clutter (and number of questions listed) one should consider the use of the option \tsobj[option]{no alias}.
+If a \tsobj[oarg]{repositories list}'s term finishes with a slash, ``/'', it will be treated as a family of repositories and all sub-repositories will be listed too.
 \end{tsremark}
 
+\begin{tsremark}
+An error is raised if a repository in \tsobj[marg]{repositories list} doesn't exist. To reduce the clutter (and number of questions listed) one should consider the use of the option \tsobj[option]{no alias}.
+\end{tsremark}
 
 \section{Parameters as pgfkeys and auxiliary macros.}\label{parameters}
 

@@ -67,7 +67,10 @@ The Current Maintainer of this work is Alceu Frigeri
     - documentation in PDF format
 
 -------------
-* Version 1.1 (this)
+* Version 1.2 (this)
+    - Added the concept of 'sub-repositories' (relevant when listing the questions of a repository). see documentation.
+
+* Version 1.1
     - Documentation typos, and issue #1.
 
 * Version 1.0

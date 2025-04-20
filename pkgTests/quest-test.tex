@@ -1,0 +1,141 @@
+%%%==============================================================================
+% WinEdt pragmas
+% !Mode:: "TeX:EN"
+% Default Compile engines:
+% !TEX program = pdflatex
+% !PDFTeXify ext =  --enable-etex  --restrict-write18
+% !PDFLaTeX ext  =  --enable-etex  --restrict-write18
+% !BIB program = none
+%%%==============================================================================
+%% Copyright 2023 by Alceu Frigeri
+%%
+%% This work may be distributed and/or modified under the conditions of
+%%
+%% * The [LaTeX Project Public License](http://www.latex-project.org/lppl.txt),
+%%   version 1.3c (or later), and/or
+%% * The [GNU Affero General Public License](https://www.gnu.org/licenses/agpl-3.0.html),
+%%   version 3 (or later)
+%%
+%% This work has the LPPL maintenance status *maintained*.
+%%
+%% The Current Maintainer of this work is Alceu Frigeri
+%%
+%% This is version {1.2} {2025/01/09}
+%%
+%% The list of files that compose this work can be found in the README.md file at
+%% https://ctan.org/pkg/tikzquests
+%%
+%%%==============================================================================
+\documentclass[10pt]{article}
+%\RequirePackage[verbose,a4paper,marginparwidth=27.5mm,top=2.5cm,bottom=1.5cm,hmargin={40mm,20mm},marginparsep=2.5mm,columnsep=10mm,asymmetric]{geometry}
+%\usepackage{tikzquests}
+\usepackage{mypacks}
+
+\RequirePackage[inline]{enumitem}
+\SetEnumitemKey{miditemsep}{parsep=0ex,itemsep=0.4ex}
+
+\usepackage[american,siunitx,cuteinductors,smartlabels,arrowmos,EFvoltages,betterproportions]{circuitikz}
+\usetikzlibrary{math}
+
+\defNewRepository{EletronicaI}
+\defNewRepository{EletronicaI/cmos}
+\defNewRepository*{EletronicaI/bipolar}
+\defQuestion{E.I:BandWidth:01}{%
+  \draw 
+  (0,0) \ncoord(G) to[V=\Vi,invert] ++(0,2) to[R=\Za,european] ++(2,0) \ncoord(X) -- ++(0,-1) node[op amp,anchor=-](opamp){}
+  (opamp.out) -- ++(1,0) \ncoord(Y)  to[R,l_=\Zc,european] ++(0,-2) \ncoord(Z)
+  (X) to[R=\Zb,european] ++(2,0) -| (Y) 
+  (Z) -| (opamp.+)
+  (Z) -| (G)
+  (Y) -- ++(1.2,0) node[ocirc]{} \ncoord(Ya)
+  (Z) -- ++(1.2,0) node[ocirc]{} \ncoord(Za)
+  (Ya) to[open,v=\Vo] (Za)
+  ;
+}
+
+\defQuestion{E.I:BandWidth:02a}{%
+  \draw 
+  (0,2) \ncoord(Aa) to[R,l_=\Zb,european] ++(2,0) \ncoord(Ba)
+  (0,0) \ncoord(Ab) -- ++(2,0) \ncoord(Bb)
+  
+  %node[Quad,anchor=inner 1+,inner x fit to={Aa}{Ba},y fit to=(Aa)(Ab)](Qa){}
+  (Aa) node[Quad,anchor=inner 1+,inner x fit to={Aa}{Ba},y fit to={Aa}{Ab}](Qa){}
+  ;
+}
+
+
+\defQuestion{E.I:BandWidth:02b}{%
+  \draw 
+  (0,2) \ncoord(Aa)
+  (0,0) \ncoord(Ab)
+  %node[Quad,anchor=inner 1+,inner x fit to={Aa}{Ba},y fit to=(Aa)(Ab)](Qa){}
+  (0,0) node[Quad Y,y fit to={Aa}{Ab},european,Y11=\Yb,Y22=\Yb,Y12=-\Yb,Y21=-\Yb](Qa){}
+  ;
+}
+
+
+
+\RequirePackage[hidelinks,hypertexnames=false]{hyperref}
+\begin{document}
+
+\ExplSyntaxOn
+\NewDocumentCommand{\XList}{O{}}
+  {
+    \tl_if_blank:nTF {#1}
+      { 
+        \seq_set_eq:NN \l__tikzquests_tmp_seq \l__tikzquests_repositories_seq
+      }
+      {
+        \seq_set_from_clist:Nn \l__tikzquests_tmp_seq {#1}
+      }
+  \seq_new:N \l__tikzquests_tmpb_seq
+
+  \seq_map_inline:Nn \l__tikzquests_tmp_seq
+      {
+        \regex_match:nnTF {/$}{##1}
+          {
+            found ~ / ~ at ~ ##1 \par
+            \tl_set:Nn \l_tmpa_tl {##1}
+            \regex_replace_once:nnN {/$}{} \l_tmpa_tl
+            \seq_put_right:Nn \l__tikzquests_tmpb_seq {\l_tmpa_tl}
+            \seq_map_inline:Nn \l__tikzquests_repositories_seq
+              {
+                \regex_match:nnTF {##1}{####1}
+                  {
+                    \seq_put_right:Nn \l__tikzquests_tmpb_seq {####1}
+                  }
+                  {}
+              }
+          }
+          {
+            no ~ / ~ at ~ ##1 \par
+            \seq_put_right:Nn \l__tikzquests_tmpb_seq {##1}
+          }
+      }
+
+  \seq_sort:Nn \l__tikzquests_tmpb_seq
+      {
+        \str_compare:eNeTF { ##1 } > { ##2 }
+          { \sort_return_swapped: }
+          { \sort_return_same: }
+      }
+  \seq_map_inline:Nn \l__tikzquests_tmpb_seq
+      {
+        \prop_if_exist:cTF {l__tikzquests_ ##1 _tikzrepo_prop}
+        {      
+          {\vspace{1ex}Repository~ Name:~ \large\textbf{##1}}\vspace{0.35ex}\hrule\relax\hrule\relax
+        }
+        {
+          \msg_error:nnne {tikzquests}{invalid repository}{Qlist~01}{##1}
+        }
+      }
+      }
+            
+\ExplSyntaxOff
+
+%\XList[EletronicaI/]
+%and then
+\QuestionsList[EletronicaI/]
+
+
+\end{document} 

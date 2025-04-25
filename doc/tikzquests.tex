@@ -20,7 +20,7 @@
 %%
 %% The Current Maintainer of this work is Alceu Frigeri
 %%
-%% This is version {1.2} {2025/01/09}
+%% This is version {1.3} {2025/04/25}
 %%
 %% The list of files that compose this work can be found in the README.md file at
 %% https://ctan.org/pkg/tikzquests
@@ -74,7 +74,7 @@ The package offers
 \section{Repositories}\label{repositories}
 Questions are stored in a set of repositories. Per default there is one such repository, named \tsobj[option]{default}. A repository can have an ``unlimited'' set of questions.
 
-\begin{codedescribe}{\defNewRepository,\selectRepository}
+\begin{codedescribe}{\defNewRepository,\SelectRepository}
 \begin{codesyntax}%
 \tsmacro{\defNewRepository*}{new-repository}
 \tsmacro{\SelectRepository}{repository}
@@ -122,15 +122,20 @@ An error is raised if \tsobj[marg]{repository} doesn't exist. In case the \tsobj
 \end{tsremark}
 
 
-\begin{codedescribe}{\defQuestionAlias}
+\begin{codedescribe}[code,update={2025-04-25}]{\defQuestionAlias}
 \begin{codesyntax}%
-\tsobj{\defQuestionAlias*}\tsargs[oarg]{repository}\tsargs[marg]{quest-alias,quest-name}
+\tsobj{\defQuestionAlias*}\tsargs[oarg]{dst-repository}\tsargs[marg]{quest-alias}\tsargs[oarg]{org-repository}\tsargs[marg]{quest-name}
 \end{codesyntax}
-\tsobj{\defQuestionAlias} creates an alias, \tsobj[marg]{quest-alias} for a given question, \tsobj[marg]{quest-name}. As for \tsobj{\defQuestion}, the ``starred one'' regards text code ones and the ``non starred one'' regards the graphical ones.
+\tsobj{\defQuestionAlias} creates an alias, \tsobj[marg]{quest-alias} (at \tsobj[oarg]{dst-repository}) for a given question, \tsobj[marg]{quest-name} (from \tsobj[oarg]{org-repository}). The current active repository is used if none is specified. If only \tsobj[oarg]{dst-repository} is specified, the same repository is used for \tsobj[oarg]{org-repository}. As with \tsobj{\defQuestion}, the ``starred one'' regards text code ones and the ``non starred one'' regards the graphical ones.
 \end{codedescribe}
 
+
 \begin{tsremark}
-An error is raised if \tsobj[marg]{repository} or \tsobj[marg]{quest-name} doesn't exist.
+Be aware that this will copy the question definition at the alias creation point.
+\end{tsremark}
+
+\begin{tsremark}
+An error is raised if \tsobj[marg,sep=or]{dst-repository,org-repository,quest-name} doesn't exist.
 \end{tsremark}
 
 
@@ -173,7 +178,7 @@ If a \tsobj[oarg]{repositories list}'s term finishes with a slash, ``/'', it wil
 \end{tsremark}
 
 \begin{tsremark}
-An error is raised if a repository in \tsobj[marg]{repositories list} doesn't exist. To reduce the clutter (and number of questions listed) one should consider the use of the option \tsobj[option]{no alias}.
+An error is raised if a repository in \tsobj[marg]{repositories list} doesn't exist. To reduce the clutter (and number of questions listed) one should consider the use of the  \tsobj[option]{no alias} option.
 \end{tsremark}
 
 \section{Parameters as pgfkeys and auxiliary macros.}\label{parameters}

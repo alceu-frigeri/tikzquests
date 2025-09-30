@@ -220,7 +220,7 @@ When defining the \tsobj[marg]{code} of a question (see \ref{question definition
   \item the \tsobj{\QuestVal} command which allows to recover the value of both the default keys, as well as the ones defined on the fly.
 \end{itemize}
 \begin{tsremark}[\color{red}Warning:]
-If the option \tsobj[option]{no defs} is defined, the only option to recover a key's value is \tsobj{\QuestVal}. One better choose which style fits better, and keep it.
+If the option \tsobj[option]{no defs} is defined, the only option to recover a key's value is \tsobj{\QuestVal}. Users are advised to choose a style, and keep it (when starting new docs).
 \end{tsremark}
 
 
@@ -229,7 +229,7 @@ If the option \tsobj[option]{no defs} is defined, the only option to recover a k
 \tsmacro{\QuestVal}{IDidx}
 \tsmacro{\QuestVal}{key}
 \end{codesyntax}
-This will always recover the value of a key, regardless if the key is one of the pre-defined ones (in the form \tsobj[marg]{IDidx} or a ``on the fly'' one, \tsobj[marg]{key}.
+This will always recover the value of a key, regardless if the key is one of the pre-defined ones (in the form \tsobj[marg]{IDidx} or an ``on the fly'' one, \tsobj[marg]{key}.
 If the key didn't got (re)defined with the \tsobj[oarg]{key=value list}, this will return the key/parameter default value. In the case of a ``on the fly'' key, it will be the key's name in red (or the color set up with the \tsobj[option]{undef color} option, see \ref{package options}).
 
 This should be safe in most situations where \tsobj{\pgfkeys} command can be used. Though, the safest, and most robust, way to use a parameter/key is using it's related macro.

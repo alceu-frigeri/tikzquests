@@ -517,12 +517,12 @@
                       \ifx####1\pgfkeysnovalue%
                         \csuse{#2##1}%
                       \else%
-                        \csedef{#2##1}{\ensuremath{####1}}%
+                        \csdef{#2##1}{\ensuremath{####1}}%
                       \fi%                      
                   },%
-            			#2##1*/.code={\csedef{#2##1}{\ensuremath{####1}}},%
+            			#2##1*/.code={\csdef{#2##1}{\ensuremath{####1}}},%
                   #2##1*/.value required,%
-            			#2##1 raw/.code={\csedef{#2##1}{####1}},%
+            			#2##1 raw/.code={\csdef{#2##1}{####1}},%
                   #2##1 raw/.value required,%
               }%
             },%

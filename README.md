@@ -67,6 +67,10 @@ The Current Maintainer of this work is Alceu Frigeri
     - documentation in PDF format
 
 -------------
+* Version 1.4 (next release)
+    - old (deplecated) keys removed
+    - internals: delaying keys expansion (using \csdef instead of \csedef)
+
 * Version 1.3 (this)
     - Added an optional parameter to \defQuestionAlias allowing to "copy" questions from one repository into another. see documentation.
 

@@ -68,10 +68,13 @@ The Current Maintainer of this work is Alceu Frigeri
 
 -------------
 * Version 1.4 (next release)
-    - old (deplecated) keys removed
-    - internals: delaying keys expansion (using \csdef instead of \csedef)
+    - internals: delaying keys expansion 
+    - removed (deprecated) "old keys"
+    - re-factoring: some commands renamed (old ones still accessible, but deprecated)
+    - internals re-factoring: pgfkeys definition re-written as expl3 code.
+    - documentation remarks.
 
-* Version 1.3 (this)
+* Version 1.3
     - Added an optional parameter to \defQuestionAlias allowing to "copy" questions from one repository into another. see documentation.
 
 * Version 1.2

@@ -20,7 +20,7 @@
 %%
 %% The Current Maintainer of this work is Alceu Frigeri
 %%
-%% This is version {1.3} {2025/04/25}
+%% This is version {1.4} {2025/10/02}
 %%
 %% The list of files that compose this work can be found in the README.md file at
 %% https://ctan.org/pkg/tikzquests
@@ -28,6 +28,9 @@
 %%%==============================================================================
 \documentclass[10pt]{article}
 \RequirePackage[verbose,a4paper,marginparwidth=27.5mm,top=2.5cm,bottom=1.5cm,hmargin={40mm,20mm},marginparsep=2.5mm,columnsep=10mm,asymmetric]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
 \usepackage{codedescribe}
 \usepackage{tikzquests}
 \RequirePackage[inline]{enumitem}
@@ -51,6 +54,8 @@ This is a framework for building parametric questions' repositories, which can b
 
 \tableofcontents
 
+
+
 \section{Introduction}
 One recurring problem when typesetting exams, specially in Engineering fields, is the need to have parameterized questions, specially parameterized schematics used in exam's questions. The intent of this is to allow the creation of such repositories (one or more) with 'easily' parameterized text and/or graphic (\tsobj[pkg]{tikz}) questions, without enforcing any style/format whatsoever, leaving it to the end user.
 
@@ -72,14 +77,17 @@ The package offers
 \end{describelist}
 
 \section{Repositories}\label{repositories}
-Questions are stored in a set of repositories. Per default there is one such repository, named \tsobj[option]{default}. A repository can have an ``unlimited'' set of questions.
+Questions are stored in repositories. Per default there is one such repository, named \tsobj[option]{default}. Each repository has two sub-sets (a) a non-starred sub-set and (b) a starred sub-set. The rational behind it being to separate text questions snippets (e.g. the question enunciate) from graphics snippets (the graphics part of a question)). It is suggested (but not enforced) to store the text part in the starred sub-set and the graphics part (\tsobj[pkg]{tikz}) in the non-starred sub-set. A repository can have an ``unlimited'' set of questions. 
+\begin{tsremark}
+  All commands defined in \ref{question use} can use both subsets, except \tsobj{\QuestionsList} which assumes the non-starred sub-set has only text code, whilst the starred sub-set has a \tsobj[pkg]{tikz} graphic.
+\end{tsremark}
 
-\begin{codedescribe}{\defNewRepository,\SelectRepository}
+\begin{codedescribe}[code,update=2025/10/01]{\defRepository,\SelectRepository}
 \begin{codesyntax}%
-\tsmacro{\defNewRepository*}{new-repository}
+\tsmacro{\defRepository*}{new-repository}
 \tsmacro{\SelectRepository}{repository}
 \end{codesyntax}
-\tsobj{\defNewRepository} creates a new Repository, \tsobj[marg]{new-repository}. The starred version also switches to it, making it the ``current default''.
+\tsobj{\defRepository} creates a new Repository, \tsobj[marg]{new-repository}. The starred version also switches to it, making it the ``current default''.
 \tsobj{\SelectRepository} activates \tsobj[marg]{repository} as the ``current default'' one.
 
 It is possible to construct a tree of related repositories by using a slash, ``/'', like ``repoA'', ``repoA/subA'', ``repoA/subB'', ``repoA/subC'', which can be handy when listing the questions of a repository, see \ref{quest list}.
@@ -90,9 +98,16 @@ About repository's names: It can be almost anything, the name can contain string
 \end{tsremark}
 
 \begin{tsremark}
-Do not create a repository with an ending slash, like ``repoName/''. Given the way sub-repositories are define, it will render impossible to list this repository questions, see \ref{quest list}
+Do not create a repository with an ending slash, like ``repoName/''. Given the way sub-repositories are defined, it will render impossible to list this repository questions, see \ref{quest list}
 \end{tsremark}
 
+%\begin{tsremark}
+%  As said, each repository has two sub-sets: (a) non-starred subset, though to store (\tsobj[pkg]{tikz}) graphics  and (b) starred subset, though to store text.
+%\end{tsremark}
+
+\begin{tsremark}
+  A warning is raised if the (deprecated) \tsobj{\defNewRepository} is called. Use \tsobj{\defRepository} instead.
+\end{tsremark}
 
 \begin{tsremark}
 When creating a new repository, a warning is raised  in case \tsobj[marg]{new-repository} already exists. 
@@ -101,18 +116,25 @@ When Selecting a repository, an error is raised if \tsobj[marg]{repository} does
 
 
 \section{Questions}
-There are two kind of questions (``code snippets''): Text ones (which can include \LaTeXe\ commands) and Graphical ones (which are assumed to be used inside a \tsobj[pkg]{tikz} environment). All questions can be parameterized (see \ref{parameters} below) with a set of predefined commands, viz-à-viz, \tsobj[pkg]{pgfkeys}.
+As said, for each repository there are two sub-sets of questions (code snippets): starred ones, though for text (which can include \LaTeXe\ commands) and non starred ones though for graphics (for instance, to be used inside a \tsobj[pkg]{tikz} environment). 
+
+Since the code re-factoring (version 1.11), the commands \tsobj{\defQuestion, \defQuestionAlias, \Question, \tikzQuestion, \ftikzQuestion} use/refer to the ``non-starred'' sub-set, while the commands \tsobj{\defQuestion*, \defQuestionAlias*, \Question*, \tikzQuestion*, \ftikzQuestion*} use/refer to the ``starred'' sub-set.
+
+ All questions can be parameterized (see \ref{parameters} below) with a set of predefined keys, viz-à-viz, \tsobj[pkg]{pgfkeys}.
 
 \subsection{Defining a Question}\label{question definition}
 \begin{codedescribe}{\defQuestion}
 \begin{codesyntax}%
+\tsobj{\defQuestion}\tsargs[oarg]{repository}\tsargs[marg]{quest-name,code}\tsargs[oarg]{remarks}
 \tsobj{\defQuestion*}\tsargs[oarg]{repository}\tsargs[marg]{quest-name,code}\tsargs[oarg]{remarks}
 \end{codesyntax}
 \tsobj{\defQuestion} creates a new Question in \tsobj[oarg]{repository} (per default using the ``current active'' one). \tsobj[marg]{quest-name} will be the associated question key, for later reference. \tsobj[marg]{code} will be the corresponding Question's code. \tsobj[oarg]{remarks} is just a small note associated with the Question. It won't be normally used/typeset, except if the \tsobj[option]{in review} option is being used, or when using the command \tsobj{\QuestionsList}.
 
-The starred version \tsobj{\defQuestion*} will create a ``text code'' one, whilst the non starred one \tsobj{\defQuestion} will create a non starred question. The real main difference between the two is regarding their later use (see \ref{question use}  bellow). Please note that there are \emph{two sets} of questions per repository. The ``starred'' (text ones) and the ``non-starred'' (graphical ones). They are fully distinct.
+The starred version \tsobj{\defQuestion*} will create the question in the ``starred sub-set'', whilst the non starred one \tsobj{\defQuestion} will create the question in the ``non starred sub-set''. 
 \end{codedescribe}
-
+\begin{tsremark}
+  Since the code re-factoring (2025/10/01) all commands in \ref{question use} can used both sets of questions, with one exception: \tsobj{\QuestionsList} witch assumes that the starred set stores text and the non-starred stores \tsobj[pkg]{tikz} graphics.
+\end{tsremark}
 \begin{tsremark}
 About question's names: It can be almost anything, the name can contain strings normally not allowed in a macro name, like spaces, dots, two-dots and so on, including backslashes, meaning that if someone typesets \tsobj{\XYZ} as a question name, \tsobj{\XYZ} will be it's name: a backslash isn't an active character anymore and one can't use macros when defining a question's name.
 \end{tsremark}
@@ -124,9 +146,10 @@ An error is raised if \tsobj[marg]{repository} doesn't exist. In case the \tsobj
 
 \begin{codedescribe}[code,update={2025-04-25}]{\defQuestionAlias}
 \begin{codesyntax}%
+\tsobj{\defQuestionAlias}\tsargs[oarg]{dst-repository}\tsargs[marg]{quest-alias}\tsargs[oarg]{org-repository}\tsargs[marg]{quest-name}
 \tsobj{\defQuestionAlias*}\tsargs[oarg]{dst-repository}\tsargs[marg]{quest-alias}\tsargs[oarg]{org-repository}\tsargs[marg]{quest-name}
 \end{codesyntax}
-\tsobj{\defQuestionAlias} creates an alias, \tsobj[marg]{quest-alias} (at \tsobj[oarg]{dst-repository}) for a given question, \tsobj[marg]{quest-name} (from \tsobj[oarg]{org-repository}). The current active repository is used if none is specified. If only \tsobj[oarg]{dst-repository} is specified, the same repository is used for \tsobj[oarg]{org-repository}. As with \tsobj{\defQuestion}, the ``starred one'' regards text code ones and the ``non starred one'' regards the graphical ones.
+\tsobj{\defQuestionAlias} creates an alias, \tsobj[marg]{quest-alias} (at \tsobj[oarg]{dst-repository}) for a given question, \tsobj[marg]{quest-name} (from \tsobj[oarg]{org-repository}). The current active repository is used if none is specified. If only \tsobj[oarg]{dst-repository} is specified, the same repository is used for \tsobj[oarg]{org-repository}. As with \tsobj{\defQuestion}, the ``star'' refers to which sub-set is being used.
 \end{codedescribe}
 
 
@@ -135,36 +158,47 @@ Be aware that this will copy the question definition at the alias creation point
 \end{tsremark}
 
 \begin{tsremark}
-An error is raised if \tsobj[marg,sep=or]{dst-repository,org-repository,quest-name} doesn't exist.
+An error is raised if \tsobj[marg,sep=or]{dst-repository,org-repository,quest-name} don't exist.
 \end{tsremark}
 
 
 \subsection{Using a Question}\label{question use}
-\begin{codedescribe}{\ftikzQuestion,\tikzQuestion,\rawtikzQuestion}
+\begin{codedescribe}[code,update=2025/10/01]{\Question,\tikzQuestion,\ftikzQuestion}
 \begin{codesyntax}%
-\tsobj{\ftikzQuestion}\tsargs[parg]{scale}\tsargs[oarg]{repository}\tsargs[marg]{quest-name}\tsargs[oarg]{key=value list}\tsargs[xarg]{annotation}
+\tsobj{\Question}\tsargs[oarg]{repository}\tsargs[marg]{quest-name}\tsargs[oarg]{key=value list}\tsargs[xarg]{annotation}
 \tsobj{\tikzQuestion}\tsargs[parg]{scale}\tsargs[oarg]{repository}\tsargs[marg]{quest-name}\tsargs[oarg]{key=value list}\tsargs[xarg]{annotation}
-\tsobj{\rawtikzQuestion}\tsargs[oarg]{repository}\tsargs[marg]{quest-name}\tsargs[oarg]{key=value list}\tsargs[xarg]{annotation}
+\tsobj{\ftikzQuestion}\tsargs[parg]{scale}\tsargs[oarg]{repository}\tsargs[marg]{quest-name}\tsargs[oarg]{key=value list}\tsargs[xarg]{annotation}
+\tsobj{\Question*}\tsargs[oarg]{repository}\tsargs[marg]{quest-name}\tsargs[oarg]{key=value list}\tsargs[xarg]{annotation}
+\tsobj{\tikzQuestion*}\tsargs[parg]{scale}\tsargs[oarg]{repository}\tsargs[marg]{quest-name}\tsargs[oarg]{key=value list}\tsargs[xarg]{annotation}
+\tsobj{\ftikzQuestion*}\tsargs[parg]{scale}\tsargs[oarg]{repository}\tsargs[marg]{quest-name}\tsargs[oarg]{key=value list}\tsargs[xarg]{annotation}
 \end{codesyntax}
-Those are the main commands to use a ``non starred'' (graphical) question.
-The \tsobj{\tikzQuestion} will display the Question's code inside a \tsobj[env]{tikzpicture} environment. \tsobj{\ftikzQuestion} will further nest the code inside a \tsobj[env]{center} environment (preparing it to be used inside a floating environment), whilst \tsobj{\rawtikzQuestion} will just display the code in a local group (in case one wants to use a different graphical environment, like SVG. The \tsobj[oarg]{annotation} will only be added if, and only if, the \tsobj[option]{in review} option is being used. The \tsobj[parg]{scale} factor, when present, is related to the current \tsobj{\textwidth}, so a factor of 0.25 will scale the width of the question to 1/4th of the text width. The \tsobj[oarg]{key=value list} is a set of \tsobj[pkg]{pgfkeys}, see \ref{parameters} below.
+Those are the main commands to display a question. The star/non-star defines which sub-set  will be used. 
+
+\tsobj{\Question} is the ``raw'' base variant, the question's code will be used, as is, in a local group. The starred version \tsobj{\Question*} is meant for text questions, whilst  the non-starred version \tsobj{\Question} is meant for the case one wants to use a different graphic engine (for instance SVG, instead of the \tsobj[pkg]{tikz} as in \tsobj{\tikzQuestion}). Note that this is just a suggestion, and not enforced.
+
+The \tsobj{\tikzQuestion} will display the question's code inside a \tsobj[env]{tikzpicture} environment. And then, \tsobj{\ftikzQuestion} will further nest the code inside a \tsobj[env]{center} environment (preparing it to be used inside a floating environment).
+
+The \tsobj[oarg]{annotation} will only be added if, and only if, the \tsobj[option]{in review} option is being used. The \tsobj[parg]{scale} factor, when present, is related to the current \tsobj{\textwidth}, so a factor of 0.25 will scale the width of the question to 1/4th of the text width. The \tsobj[oarg]{key=value list} is a set of \tsobj[pkg]{pgfkeys}, see \ref{parameters} below.
 \end{codedescribe}
+\begin{tsremark}[\color{red}Warning:]
+  A Warning is raised if one uses the old (deprecated) \tsobj[code,sep=or]{\rawtikzQuestion,\textQuestion}. Use \tsobj{\Question} instead.
+\end{tsremark}
 
 \begin{tsremark}
 An error is raised if \tsobj[marg]{repository} or \tsobj[marg]{quest-name} doesn't exist.
 \end{tsremark}
 
-\begin{codedescribe}{\textQuestion}
-\begin{codesyntax}%
-\tsobj{\textQuestion}\tsargs[oarg]{repository}\tsargs[marg]{quest-name}\tsargs[oarg]{key=value list}\tsargs[xarg]{annotation}
-\end{codesyntax}
-This is the command to use a ``starred'' (text) question.
-The \tsobj{\textQuestion} will just use the code in a local group. The \tsobj[oarg]{annotation} will only be added if, and only if, the \tsobj[option]{in review} option is being used. The \tsobj[oarg]{key=value list} is a set of \tsobj[pkg]{pgfkeys}, see \ref{parameters} below.
-\end{codedescribe}
-
-\begin{tsremark}
-An error is raised if \tsobj[marg]{repository} or \tsobj[marg]{quest-name} doesn't exist.
-\end{tsremark}
+%\begin{codedescribe}{\textQuestion}
+%\begin{codesyntax}%
+%\tsobj{\textQuestion}\tsargs[oarg]{repository}\tsargs[marg]{quest-name}\tsargs[oarg]{key=value list}\tsargs[xarg]{annotation}
+%\end{codesyntax}
+%This is the command to use a ``starred'' (text) question.
+%The \tsobj{\textQuestion} will just use the code in a local group. The \tsobj[oarg]{annotation} will only be added if, and only if, the \tsobj[option]{in review} option is being used. The \tsobj[oarg]{key=value list} is a set of \tsobj[pkg]{pgfkeys}, see \ref{parameters} below.
+%\end{codedescribe}
+%
+%\begin{tsremark}
+%An error is raised if \tsobj[marg]{repository} or \tsobj[marg]{quest-name} don't exist.
+%\end{tsremark}
 
 \begin{codedescribe}{\QuestionsList}\label{quest list}
 \begin{codesyntax}%
@@ -178,7 +212,7 @@ If a \tsobj[oarg]{repositories list}'s term finishes with a slash, ``/'', it wil
 \end{tsremark}
 
 \begin{tsremark}
-An error is raised if a repository in \tsobj[marg]{repositories list} doesn't exist. To reduce the clutter (and number of questions listed) one should consider the use of the  \tsobj[option]{no alias} option.
+An error is raised if any repository in \tsobj[marg]{repositories list} doesn't exist. To reduce the clutter (and number of questions listed) one should consider the use of the  \tsobj[option]{no alias} option.
 \end{tsremark}
 
 \section{Parameters as pgfkeys and auxiliary macros.}\label{parameters}
@@ -234,6 +268,10 @@ If the key didn't got (re)defined with the \tsobj[oarg]{key=value list}, this wi
 
 This should be safe in most situations where \tsobj{\pgfkeys} command can be used. Though, the safest, and most robust, way to use a parameter/key is using it's related macro.
 \end{codedescribe}
+\begin{tsremark}
+  Whereas \tsobj{\QuestVal} can't be used (e.g. a fully expandable command is needed), it is possible to use the \tsmeta{handler}/.get syntax from pgfkeys, to recover key into an auxiliary macro, for instance \tsobj[verb]{\QuestVal{my-key/.get=\keycmd}} will recover \tsmeta{my-key} value into \tsobj{\keycmd}. This applies to all keys if the \tsobj[option]{no defs} package option is being used. Otherwise, it applies only to the non pre-defined keys (by default, the pre-defined ones already have set a collection of auxiliary commands).
+  Of course, \tsmeta{my-key}/.get  will recover a value only if the key has already been set, blank otherwise.
+\end{tsremark}
 
 \section{Examples of Use}
 
@@ -275,7 +313,7 @@ In the following code, an extra repository will be set (besides the default one)
 \begin{codestore}[DefQuestion]
 % A repository name can be just about anything.
 % the star makes sure 'Repo 2' is now the active/default one.
-\defNewRepository*{Repo 2} 
+\defRepository*{Repo 2} 
 
 % quest names are even more flexible than a repository one
 % the star implies this is a text one.
@@ -322,54 +360,9 @@ In the following code, an extra repository will be set (besides the default one)
 }[this is a CircuiTikZ example]
 \end{codestore}
 
-\tscode*[codeprefix={Questions Definitions},resultprefix={Result: \emph{no output}},emph={Ra,Rb,Rc,Rd,Rg,Vi,Vbc,Vo,QuestVal,Beta,Gain,raw,DC,level},emph2={defQuestion,SelectRepository,defNewRepository},basicstyle={\scriptsize\ttfamily}]{DefQuestion}
+\tscode*[codeprefix={Defining Questions},resultprefix={Result: \emph{no output}},emph={Ra,Rb,Rc,Rd,Rg,Vi,Vbc,Vo,QuestVal,Beta,Gain,raw,DC,level},emph2={Question,SelectRepository,defRepository},basicstyle={\scriptsize\ttfamily}]{DefQuestion}
 
-%%% Oh well, stcontents does have some limitations... That's why the code is replicated below.
-
-\defNewRepository*{Repo 2} 
-% quest names are even more flexible than a repository one
-% the star implies this is a text one.
-\defQuestion*{Quest A:1}{
- In the following circuit, assuming $\beta \approx \QuestVal{Beta}$ and that $V_{be} \approx 0.65V$, find the value of $R_c$ such that the small signal gain is \QuestVal{Gain}.
-}[That would be a question enunciate.]
-
-%% Note the use of the macros \Ra, \Rb, \Rc, \Rd, \Vi, \Vbc and \Vo 
-\defQuestion[Repo 2]{Elect. 1a}{
-		\draw
-		(0,0) coordinate(A) to[V,invert,l=\Vi] ++(0,3) coordinate(V)
-      to[R=\Ra] ++(2,0) 
-      to[C] ++(2,0) coordinate(B) 
-      -- ++(1,0) node[npn,anchor=B] (T1){}
-		(A) -- (A -| B) coordinate(Ba) to[R=\Rb] (B) to[R=\Rg] ++(0,3) coordinate(C)
-    (B) node[circ]{}
-		(T1.E) to[R,l_=\Rc] (T1.E |- A) -- (A)
-		(T1.C) to[R,l=\Rd] (T1.C |- C) -- (C -| A) -- ++(-2,0) coordinate(X) to[V,l=\Vbc] (X |- A) -- (A)
-    (T1.C) -- ++(1.5,0) node[ocirc]{} coordinate(k) to[open,v=\Vo] (k |- A) node[ocirc]{} -- (A)
-		 ;
-}[this is a CircuiTikZ example]
-
-%switching repositories
-\SelectRepository{default} 
-
-% Note that, since it is a different repository, there is no name crashing.
-\defQuestion*{Quest A:1}{
- In the following circuit, assuming $\beta \approx \QuestVal{Beta}$ and that $V_{be} \approx 0.65V$, find the value of \Rg \ such that the DC level of \Vo \ is equal to \QuestVal{DC level}.
-}[Just for the sake of it.]
-
-%% Note the use of the macros \Ra, \Rb, \Rc, \Rd, \Vi, \Vbc and \Vo 
-\defQuestion{Elect. 1b}{
-		\draw
-		(0,0) coordinate(A) to[V,invert,l=\Vi] ++(0,3) coordinate(V)
-      to[R=\Ra] ++(2,0) 
-      to[C] ++(2,0) coordinate(B) 
-      -- ++(1,0) node[pnp,anchor=B] (T1){}
-		(A) -- (A -| B) coordinate(Ba) to[R=\Rb] (B) to[R=\Rg] ++(0,3) coordinate(C)
-    (B) node[circ]{}
-		(T1.C) to[R,l_=\Rc] (T1.C |- A) -- (A)
-		(T1.E) to[R,l=\Rd] (T1.E |- C) -- (C -| A) -- ++(-2,0) coordinate(X) to[V,l=\Vbc] (X |- A) -- (A)
-    (T1.C) -- ++(1.5,0) node[ocirc]{} coordinate(k) to[open,v=\Vo] (k |- A) node[ocirc]{} -- (A)
-		 ;
-}[this is another CircuiTikZ example]
+\tsexec{DefQuestion}
 
 
 Once Questions are defined one can use them, for instance, using just the default parameter's values.
@@ -378,15 +371,15 @@ Once Questions are defined one can use them, for instance, using just the defaul
 Choose one of the following two questions:
 
 \begin{enumerate}
-  \item \textQuestion[Repo 2]{Quest A:1}<just a last minute note about this>\par
+  \item \Question*[Repo 2]{Quest A:1}<just a last minute note about this>\par
   \ftikzQuestion(0.4)[Repo 2]{Elect. 1a}
   
-  \item \textQuestion[default]{Quest A:1}<just for the sake of it...>\par
+  \item \Question*[default]{Quest A:1}<just for the sake of it...>\par
   \ftikzQuestion(0.4)[default]{Elect. 1b}
 \end{enumerate}
 \end{codestore}
 
-\tscode*[codeprefix={Questions Defaults},resultprefix={Result: \emph{no output}},emph={Ra,Rb,Rc,Rd,Rg,Vi,Vbc,Vo,QuestVal,Beta,Gain,raw,DC,level},emph2={textQuestion,ftikzQuestion},basicstyle={\scriptsize\ttfamily}]{QuestionDefault}
+\tscode*[codeprefix={Questions Defaults},resultprefix={}, emph={Ra,Rb,Rc,Rd,Rg,Vi,Vbc,Vo,QuestVal,Beta,Gain,raw,DC,level}, emph2={Question,ftikzQuestion}, basicstyle={\scriptsize\ttfamily}]{QuestionDefault}
 
 
 \hrule\relax\vspace{0.5ex}
@@ -394,10 +387,10 @@ Choose one of the following two questions:
 Choose one of the following two questions:
 
 \begin{enumerate}
-  \item \textQuestion[Repo 2]{Quest A:1}<just a last minute note about this>\par
+  \item \Question*[Repo 2]{Quest A:1}<just a last minute note about this>\par
   \ftikzQuestion(0.4)[Repo 2]{Elect. 1a}
   
-  \item \textQuestion[default]{Quest A:1}<just for the sake of it...>\par
+  \item \Question*[default]{Quest A:1}<just for the sake of it...>\par
   \ftikzQuestion(0.4)[default]{Elect. 1b}
 \end{enumerate}
 
@@ -407,10 +400,10 @@ Finally, one can use these same questions, setting it's parameters:
 Choose one of the following two questions:
 
 \begin{enumerate}
-  \item \textQuestion[Repo 2]{Quest A:1}[Beta=200,Gain=4,Ra=50\Omega]<just a last minute note about this>\par
+  \item \Question*[Repo 2]{Quest A:1}[Beta=200,Gain=4,Ra=50\Omega]<just a last minute note about this>\par
   \ftikzQuestion(0.4)[Repo 2]{Elect. 1a}[Ra=50\Omega,Rb*=100\Omega,Rg raw=$100\Omega$,Rc=100\Omega,Rd=R_c,Vbc=18V,Vi=v_i(t),Vo=v_o(t)]
   
-  \item \textQuestion[default]{Quest A:1}[Beta=200,DC level=8V,Rg=R_{b1},Vo=v_o(t)]<just for the sake of it...>\par
+  \item \Question*[default]{Quest A:1}[Beta=200,DC level=8V,Rg=R_{b1},Vo=v_o(t)]<just for the sake of it...>\par
   \ftikzQuestion(0.4)[default]{Elect. 1b}[Ra=50\Omega,Rb*=100\Omega,Rg=R_{b1},Rc=100\Omega,Rd=200\Omega,Vbc=18V,Vi=v_i(t),Vo=v_o(t)]
 \end{enumerate}
 \end{codestore}
@@ -422,10 +415,10 @@ Choose one of the following two questions:
 Choose one of the following two questions:
 
 \begin{enumerate}
-  \item \textQuestion[Repo 2]{Quest A:1}[Beta=200,Gain=4,Ra=50\Omega]<just a last minute note about this>\par
+  \item \Question*[Repo 2]{Quest A:1}[Beta=200,Gain=4,Ra=50\Omega]<just a last minute note about this>\par
   \ftikzQuestion(0.4)[Repo 2]{Elect. 1a}[Ra=50\Omega,Rb*=100\Omega,Rg raw=$100\Omega$,Rc=100\Omega,Rd=R_c,Vbc=18V,Vi=v_i(t),Vo=v_o(t)]
   
-  \item \textQuestion[default]{Quest A:1}[Beta=200,DC level=8V,Rg=R_{b1},Vo=v_o(t)]<just for the sake of it...>\par
+  \item \Question*[default]{Quest A:1}[Beta=200,DC level=8V,Rg=R_{b1},Vo=v_o(t)]<just for the sake of it...>\par
   \ftikzQuestion(0.4)[default]{Elect. 1b}[Ra=50\Omega,Rb*=100\Omega,Rg=R_{b1},Rc=100\Omega,Rd=200\Omega,Vbc=18V,Vi=v_i(t),Vo=v_o(t)]
 \end{enumerate}
 

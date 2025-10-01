@@ -28,7 +28,7 @@
 %%%==============================================================================
 \documentclass[10pt]{article}
 %\RequirePackage[verbose,a4paper,marginparwidth=27.5mm,top=2.5cm,bottom=1.5cm,hmargin={40mm,20mm},marginparsep=2.5mm,columnsep=10mm,asymmetric]{geometry}
-%\usepackage{tikzquests}
+\usepackage[no defs]{tikzquests}
 \usepackage[tikz,math]{afperpack}
 
 \RequirePackage[inline]{enumitem}
@@ -37,9 +37,9 @@
 \usepackage[american,siunitx,cuteinductors,smartlabels,arrowmos,EFvoltages,betterproportions]{circuitikz}
 \usetikzlibrary{math}
 
-\defNewRepository{EletronicaI}
-\defNewRepository{EletronicaI/cmos}
-\defNewRepository*{EletronicaI/bipolar}
+\defRepository{EletronicaI}
+\defRepository{EletronicaI/cmos}
+\defRepository*{EletronicaI/bipolar}
 \defQuestion{E.I:BandWidth:01}{%
   \draw 
   (0,0) \ncoord(G) to[V=\Vi,invert] ++(0,2) to[R=\Za,european] ++(2,0) \ncoord(X) -- ++(0,-1) node[op amp,anchor=-](opamp){}
@@ -73,6 +73,15 @@
   ;
 }
 
+\defQuestion{E.I:BandWidth:02c}{%
+\pgfkeys{/tikzquests,Yb/.get=\YYb}
+  \draw 
+  (0,2) \ncoord(Aa) 
+  (0,0) \ncoord(Ab)to[R,l=\QuestVal{Yxb}] ++(10,0)
+  %node[Quad,anchor=inner 1+,inner x fit to={Aa}{Ba},y fit to=(Aa)(Ab)](Qa){}
+  (0,0) node[Quad Y,y fit to={Aa}{Ab},european,Y11=\YYb,Y22=\YYb,Y12=-\YYb,Y21=-\YYb](Qa){}
+  ;
+}
 
 
 \RequirePackage[hidelinks,hypertexnames=false]{hyperref}
@@ -135,7 +144,15 @@
 
 %\XList[EletronicaI/]
 %and then
-\QuestionsList[EletronicaI/]
+%\QuestionsList[EletronicaI/]
 
+\ftikzQuestion[EletronicaI/bipolar]{E.I:BandWidth:02c}[Yxb=5]
+
+\pgfkeys{/tikzquests,Raa/.get=\xx}
+\xx 
+%\pgfkeys{/tikzquests,Rzz}
+%%\yy
+\pgfkeys{/tikzquests,Rzz/.get=\yy}
+\yy
 
 \end{document} 

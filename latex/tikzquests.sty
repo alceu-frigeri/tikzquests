@@ -12,23 +12,19 @@
 %%
 %% The Current Maintainer of this work is Alceu Frigeri
 %%
-%% This is version {1.3} {2025/04/25}
+%% This is version {1.4} {2025/10/02}
 %%
 %% The list of files that compose this work can be found in the README.md file at
 %% https://ctan.org/pkg/tikzquests
 %%
-%%%==============================================================================
-%% WARNING: These are personal packs/tests
-%%          They might and probably will change at will as needed
-%% 
 %%%==============================================================================
 \NeedsTeXFormat{LaTeX2e}[2022/06/01]
 
 
 \ProvidesExplPackage
     {tikzquests}
-    {2025/04/25}
-    {1.3}
+    {2025/10/02}
+    {1.4}
     {A Simple Framework for (tikz/text) Parametric Questions}
 
 \ExplSyntaxOn
@@ -42,8 +38,8 @@
   {
      name        .code:n = {tikzquests} ,
      prefix      .code:n = {tikzquests} ,
-     date        .code:n = {2025/04/25},
-     version     .code:n = {1.3} ,
+     date        .code:n = {2025/10/02},
+     version     .code:n = {1.4} ,
      description .code:n = {A Simple Framework for (tikz/text) Parametric Questions}
   }
 \cs_if_exist:NF \PkgInfo 
@@ -56,9 +52,6 @@
 %%% End of cut-n-paste
 %%%%%%%
 
-
-\newif\iftikzquests@@oldkeys   %  DEPRECATED, will be removed in future releases without further notice.
-\tikzquests@@oldkeysfalse
 
 \newif\iftikzquests@@nodefs
 \tikzquests@@nodefsfalse
@@ -78,20 +71,17 @@
     xtraidx .value_required:n  = true ,
    
     undef~ color .usage:n = load ,
-    undef~ color .tl_set:N = \tikzquests@@undefcolor , % yeah... mixing styles
+    undef~ color .tl_set:N = \l__tikzquests_undefcolor_tl , 
     undef~ color .value_required:n  = true ,
     undef~ color .initial:n = {red} ,
 
     in~ review .usage:n = load ,
     in~ review .bool_set:N = \l__tikzquests_inreview_bool ,
 
-    no~ defs   .usage:n = load ,
-    no~ defs   .legacy_if_gset:n = tikzquests@@nodefs ,  
-    no~ defs   .value_forbidden:n  = true ,
+    no~ defs  .usage:n = load ,
+    no~ defs  .bool_set:N = \l__tikzquests_nodefs_bool ,
+    no~ defs  .value_forbidden:n  = true ,
 
-    old keys .usage:n = load ,   %  DEPRECATED, will be removed in future releases without further notice.
-    old keys .legacy_if_gset:n = tikzquests@@oldkeys ,  
-    old keys .value_forbidden:n  = true ,
   }
 \ProcessKeyOptions [ tikzquests ]
 
@@ -130,6 +120,17 @@
     You~tried~to~use~an~invalid~Question:~'#2'.
     ~Error~Code~ ID:<#1>.
   }
+
+
+\msg_new:nnnn {tikzquests} {deprecated}
+  {
+    (ID:#1)~#2 ~ is ~ deprecated.~ use~ '#3' ~ instead
+  }
+  {
+    You~tried~to~use~a~deprecated~command:~#2. Use~'#3'~ instead.
+    ~Error~Code~ ID:<#1>.
+  }
+
 
 
 \seq_new:N  \l__tikzquests_repositories_seq
@@ -175,10 +176,17 @@
     \__tikzquests_select_repository:n {#1}
   }
   
-\NewDocumentCommand{\defNewRepository}{sm}
+\NewDocumentCommand{\defRepository}{sm}
   {
     \__tikzquests_new_repository:nn {#1}{#2}
   }  
+%\cs_new_eq:NN   \defRepository \defRepository
+%
+\NewDocumentCommand\defNewRepository{sm}
+  {
+    \msg_warning:nnnnn {tikzquests}{deprecated}{dep~03}{\defNewRepository}{\defRepository}
+    \__tikzquests_new_repository:nn {#1}{#2}
+  }
 
 
 \NewDocumentCommand{\defQuestion}{sO{\l__tikzquests_active_repository_tl}m+mO{}}
@@ -253,7 +261,7 @@
     \prop_get:cnN {l__tikzquests_ #1 _remarks_prop} {#2} \l__tikzquests_tmp_tl
     \tl_if_blank:eF {\l__tikzquests_tmp_tl}
       {
-        {\par\footnotesize\textbf{Remarks:~}\color{\tikzquests@@undefcolor}\l__tikzquests_tmp_tl}
+        {\par\footnotesize\textbf{Remarks:~}\color{\l__tikzquests_undefcolor_tl}\l__tikzquests_tmp_tl}
       }
   }  
 
@@ -264,51 +272,62 @@
         \__tikzquests_remarks:nnn {#1}{#2}{#3}  
         \tl_if_blank:nF {#3}
           {
-            {\par\footnotesize\textbf{Annotation:~}\color{\tikzquests@@undefcolor}#3}
+            {\par\footnotesize\textbf{Annotation:~}\color{\l__tikzquests_undefcolor_tl}#3}
           }
       }
   }  
   
   
-\NewDocumentCommand{\ftikzQuestion}{D(){}O{\l__tikzquests_active_repository_tl}mO{}}
+\NewDocumentCommand{\ftikzQuestion}{sD(){}O{\l__tikzquests_active_repository_tl}mO{}}
   {
-			\begin{center}
-        \tikzQuestion(#1)[#2]{#3}[#4]
-			\end{center}
+    \bool_if:nTF {#1}
+      {
+  			\begin{center}
+          \tikzQuestion*(#2)[#3]{#4}[#5]
+  			\end{center}
+      }
+      {
+  			\begin{center}
+          \tikzQuestion(#2)[#3]{#4}[#5]
+  			\end{center}
+      }
   }  
+
   
-  
-    
-\NewDocumentCommand{\tikzQuestion}{D(){}O{\l__tikzquests_active_repository_tl}mO{}D<>{}}
+\tl_new:N \l__tikzquests_repo_tl    
+\NewDocumentCommand{\tikzQuestion}{sD(){}O{\l__tikzquests_active_repository_tl}mO{}D<>{}}
   {
-    \prop_if_exist:cTF {l__tikzquests_ #2 _tikzrepo_prop}
+    \bool_if:nTF {#1}
+      { \tl_set:Nn \l__tikzquests_repo_tl {textrepo} }
+      { \tl_set:Nn \l__tikzquests_repo_tl {tikzrepo} }
+    \prop_if_exist:cTF {l__tikzquests_ #3 _ \l__tikzquests_repo_tl _prop}
     {
-      \prop_get:cnNTF {l__tikzquests_ #2 _tikzrepo_prop} {#3} \l__tikzquests_tmp_tl
+      \prop_get:cnNTF {l__tikzquests_ #3 _ \l__tikzquests_repo_tl _prop} {#4} \l__tikzquests_tmp_tl
         {
-          \tl_if_blank:nTF {#1}
+          \tl_if_blank:nTF {#2}
             {
       				\begin{tikzpicture}
-                \__tikzquests_pgfkeys:n{#4}
+                \__tikzquests_pgfkeys:n{#5}
         				\l__tikzquests_tmp_tl
       				\end{tikzpicture}
             }
             {
-      				\resizebox{#1\textwidth}{!}{
+      				\resizebox{#2\textwidth}{!}{
       				\begin{tikzpicture}
-                \__tikzquests_pgfkeys:n{#4}
+                \__tikzquests_pgfkeys:n{#5}
         				\l__tikzquests_tmp_tl
       				\end{tikzpicture}}
             }
-          \__tikzquests_inreview_remarks:nnn {#2 _tikzrepo}{#3}{#5}
+          \__tikzquests_inreview_remarks:nnn {#3 _ \l__tikzquests_repo_tl}{#4}{#6}
         }
         {
-          Invalid~Question:~#3
-          \msg_error:nnnn {tikzquests}{invalid question}{quest~01}{#3}
+          Invalid~Question:~#4
+          \msg_error:nnnn {tikzquests}{invalid question}{quest~01}{#4}
         }
     }
     {
-      Invalid~Repository:~#2
-      \msg_error:nnne {tikzquests}{invalid repository}{quest~01}{#2}
+      Invalid~Repository:~#3
+      \msg_error:nnne {tikzquests}{invalid repository}{quest~01}{#3}
     }
   }  
 
@@ -337,14 +356,24 @@
   
 \NewDocumentCommand{\rawtikzQuestion}{O{\l__tikzquests_active_repository_tl}mO{}D<>{}}
   {
+    \msg_warning:nnnnn {tikzquests}{deprecated}{dep~01}{\rawtikzQuestion}{\Question}
     \__tikzquests_rawquestion:nnnnn {#1}{tikzrepo}{#2}{#3}{#4}
   }
 
   
 \NewDocumentCommand{\textQuestion}{O{\l__tikzquests_active_repository_tl}mO{}D<>{}}
   {
+    \msg_warning:nnnnn {tikzquests}{deprecated}{dep~02}{\textQuestion}{\Question*}
     \__tikzquests_rawquestion:nnnnn {#1}{textrepo}{#2}{#3}{#4}
   }
+
+\NewDocumentCommand{\Question}{sO{\l__tikzquests_active_repository_tl}mO{}D<>{}}
+  {
+    \bool_if:nTF {#1}
+      { \__tikzquests_rawquestion:nnnnn {#2}{textrepo}{#3}{#4}{#5} }
+      { \__tikzquests_rawquestion:nnnnn {#2}{tikzrepo}{#3}{#4}{#5} }
+  }
+
 
 \cs_new_protected:Npn \__tikzquests_sorted_list:nnnn #1#2#3#4
   {
@@ -422,7 +451,7 @@
           {\vspace{1ex}~\hfill\emph{non~ starred~ ones~ -~ TikZ~ graphics}}\vspace{0.35ex}\hrule\relax
           \__tikzquests_sorted_list:nnnn {##1}{tikzrepo}{\raisebox{3em}}{\tikzQuestion(0.35)}
           {~\hfill\emph{starred~ ones~ -~ text/\TeX}}\vspace{0.35ex}\hrule\relax
-          \__tikzquests_sorted_list:nnnn {##1}{textrepo}{}{\textQuestion}
+          \__tikzquests_sorted_list:nnnn {##1}{textrepo}{}{\Question*}
         }
         {
           \msg_error:nnne {tikzquests}{invalid repository}{Qlist~01}{##1}
@@ -430,125 +459,110 @@
       }
   }
 
-\tl_if_empty:NTF \l__tikzquests_xtrakeys_tl
-  {
-    \def\tikzquests@@xtratkey{}
-  }
-  {
-    \exp_args:NNe\def\tikzquests@@xtratkey{,\l__tikzquests_xtrakeys_tl}
-  }
-
-\tl_if_empty:NTF \l__tikzquests_xtraidx_tl
-  {
-    \def\tikzquests@@xtraidx{}
-  }
-  {
-    \exp_args:NNe\def\tikzquests@@xtraidx{,\l__tikzquests_xtraidx_tl}
-  }
 
 \cs_new:Npn \__tikzquests_pgfkeys:n #1
-  { \pgfkeys{\tikzquests@@ZPath, #1} }
+  { \pgfkeys{\l__tikzquests_zpath_tl, #1} }
+
+\cs_set_eq:NN \QuestVal \__tikzquests_pgfkeys:n
+
+\NewDocumentCommand {\QuestValGet}{mm}
+  {
+    \pgfkeys{\l__tikzquests_zpath_tl, #1/.get=#2}
+  }
+
+\tl_const:Nn \l__tikzquests_zpath_tl {/tikzquests}
 
 
-\NewDocumentCommand{\QuestVal}{m}
-  { \pgfkeys{\tikzquests@@ZPath, #1} }
-
-
-\ExplSyntaxOff
-%
-% no easy and clean way to convert this below to expl3 (for instance underscore, under expl3 code regimè, is a letter)
-%
-
-\def\tikzquests@@ZPath{/tikzquests}
-
-
-\iftikzquests@@oldkeys%  DEPRECATED, will be removed in future releases without further notice.
-    \NewDocumentCommand{\tikzquests@@SetDef}{O{}m}{%
-      \pgfkeys{%
-    	  \tikzquests@@ZPath,%
-    		keyset/.code={%
-          \pgfkeysalso{%
-        		  default/.append style = {#2##1={#2_{#1{##1}}}},%
-        			#2/##1/.code={\csedef{#2##1}{\ensuremath{####1}}},%
-              #2/##1/.value required,%
-        			#2##1/.code={%
-                  \ifx####1\pgfkeysnovalue%
-                    \csuse{#2##1}%
-                  \else%
-                    \csedef{#2##1}{\ensuremath{####1}}%
-                  \fi%                 
-              },%
-        			#2##1*/.code={\csedef{#2##1}{\ensuremath{####1}}},%
-              #2##1*/.value required,%
-        			#2##1 raw/.code={\csedef{#2##1}{####1}},%
-              #2##1 raw/.value required,%
-    		  }%
-        },%
-    		setaux/.code={\pgfkeysalso{keyset/.list/.expanded={##1a,##1b,##1c,##1d,##1e,##1f,##1g,##1h,##1i,##1j,##1k,##1l,##1m,##1n,##1o,##1p,##1q,##1r,##1s,##1t,##1u,##1v,##1w,##1x,##1y,##1z}}},%
-    		setaux/.list/.expanded={,a,b\tikzquests@@xtraidx}%
-    	}%
-    }%
-\else
-    \iftikzquests@@nodefs
-        \NewDocumentCommand{\tikzquests@@SetDef}{O{}m}{%
-          \pgfkeys{%
-        	  \tikzquests@@ZPath,%
-        		keyset/.code={%
-              \pgfkeysalso{%
-            			#2##1/.initial={\ensuremath{#2_{#1{##1}}}},%
-            			#2##1*/.style={#2##1=\ensuremath{####1}},%
-                  #2##1*/.value required,%
-            			#2##1 raw/.style={#2##1={####1}},%
-                  #2##1 raw/.value required,%
-              }%
-            },%
-        		setaux/.code={\pgfkeysalso{keyset/.list/.expanded={##1a,##1b,##1c,##1d,##1e,##1f,##1g,##1h,##1i,##1j,##1k,##1l,##1m,##1n,##1o,##1p,##1q,##1r,##1s,##1t,##1u,##1v,##1w,##1x,##1y,##1z}}},%
-        		setaux/.list/.expanded={,a,b\tikzquests@@xtraidx}%
-        	}%
-        }%
-    \else
-        \NewDocumentCommand{\tikzquests@@SetDef}{O{}m}{%
-          \pgfkeys{%
-        	  \tikzquests@@ZPath,% 
-        		keyset/.code={%
-              \pgfkeysalso{%
-            		  default/.append style={#2##1={#2_{#1{##1}}}},%
-            			#2##1/.code={%
-                      \ifx####1\pgfkeysnovalue%
-                        \csuse{#2##1}%
+\cs_new_protected:Npn \__tikzquests_keys:NNn #1#2#3
+  {
+    \clist_map_inline:Nn #1
+      {
+        \clist_map_inline:Nn #2
+          {
+            \clist_map_inline:nn {a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z}
+              {
+                \cs_set:cpn {##1####1########1} {\ensuremath{##1 \char_generate:nn { `\_ } { 8 } {#3{####1########1}}}}
+                \pgfkeys{\l__tikzquests_zpath_tl,
+                  ##1####1########1/.code = 
+                    {
+                      \ifx################1\pgfkeysnovalue
+                        \use:c{##1####1########1}
                       \else%
-                        \csdef{#2##1}{\ensuremath{####1}}%
+                        \cs_set:cpn{##1####1########1} {\ensuremath{################1}}%
                       \fi%                      
-                  },%
-            			#2##1*/.code={\csdef{#2##1}{\ensuremath{####1}}},%
-                  #2##1*/.value required,%
-            			#2##1 raw/.code={\csdef{#2##1}{####1}},%
-                  #2##1 raw/.value required,%
-              }%
-            },%
-        		setaux/.code={\pgfkeysalso{keyset/.list/.expanded={##1a,##1b,##1c,##1d,##1e,##1f,##1g,##1h,##1i,##1j,##1k,##1l,##1m,##1n,##1o,##1p,##1q,##1r,##1s,##1t,##1u,##1v,##1w,##1x,##1y,##1z}}},%
-        		setaux/.list/.expanded={,a,b\tikzquests@@xtraidx}%
-        	}%
-        }%
-    \fi
-\fi
+                    },%
+            			##1####1########1*/.code={\cs_set:cpn{##1####1########1} {\ensuremath{################1}}},%
+                  ##1####1########1*/.value ~ required,%
+            			##1####1########1 ~ raw/.code={\cs_set:cpn{##1####1########1} {################1}},%
+                  ##1####1########1 ~ raw/.value ~ required,%     
+                }
+              }
+          }
+      }   
+  }
 
 
-\AtBeginDocument{\tikzquests@@KeysDef}
 
-\NewDocumentCommand{\tikzquests@@KeysDef}{}{%
-  \pgfkeys{\tikzquests@@ZPath/.is family, \tikzquests@@ZPath, default/.style={},%
-	  defset/.code={\tikzquests@@SetDef{##1}},%
-		defset/.list/.expanded={R,L,C,X,Y,Z,K,T,Q,EQ\tikzquests@@xtratkey},%
-		defset/.code={\tikzquests@@SetDef[f_]{##1}},%
-		defset/.list/.expanded={V,I},%
-		default,%
-    .unknown/.code={%
-        \ifx##1\pgfkeysnovalue%
-          \textbf{\emph{\color{\tikzquests@@undefcolor}\pgfkeyscurrentname}}%
-        \else%
-          \pgfkeysalso{\pgfkeyscurrentname/.initial={##1}}
-        \fi%
+\cs_new_protected:Npn \__tikzquests_keys_nodefs:NNn #1#2#3
+  {
+    \clist_map_inline:Nn #1
+      {
+        \clist_map_inline:Nn #2
+          {
+            \clist_map_inline:nn {a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z}
+              {
+                \pgfkeys{\l__tikzquests_zpath_tl,
+            			##1####1########1 /.initial={\ensuremath{##1 \char_generate:nn { `\_ } { 8 } {#3{####1########1}}}},%
+            			##1####1########1*/.style={##1####1########1 =  {\ensuremath{################1}}},%
+                  ##1####1########1*/.value ~ required,%
+            			##1####1########1 ~ raw/.style={##1####1########1 = {################1}},%
+                  ##1####1########1 ~ raw/.value ~ required,%     
+                }
+              }
+          }
+      }   
+  }
+
+
+\cs_new_protected:Npn \__tikzquests_keys_set: 
+  {
+    \pgfkeys{\l__tikzquests_zpath_tl/.is ~ family, \l__tikzquests_zpath_tl,
+      .unknown/.code={
+          \ifx##1\pgfkeysnovalue
+            \textbf{\emph{\color{\l__tikzquests_undefcolor_tl}\pgfkeyscurrentname}}
+          \else
+            \pgfkeysalso{\pgfkeyscurrentname/.initial={##1}}
+          \fi
+      },
     }
-	}%
-}%
+    \pgfkeys{\l__tikzquests_zpath_tl/.is ~ family, \l__tikzquests_zpath_tl,
+      .unknown/.get/.code={
+            \def{##1}{\emph{\color{\l__tikzquests_undefcolor_tl}ASD\pgfkeyscurrentname}}
+      }
+  	}
+
+    \clist_set:Nn \l__tikzquests_keys_clist {R,L,C,X,Y,Z,K,T,Q,EQ,V,I}
+    \clist_put_right:NV \l__tikzquests_keys_clist \l__tikzquests_xtrakeys_tl
+    \clist_set:Nn \l__tikzquests_idx_clist {{},a,b}
+    \clist_put_right:NV \l__tikzquests_idx_clist \l__tikzquests_xtraidx_tl
+    
+    \bool_if:NTF \l__tikzquests_nodefs_bool
+      { \cs_gset_eq:NN \__tikzquests_map:NNn \__tikzquests_keys_nodefs:NNn }
+      { \cs_gset_eq:NN \__tikzquests_map:NNn \__tikzquests_keys:NNn }
+            
+    \__tikzquests_map:NNn 
+      \l__tikzquests_keys_clist
+      \l__tikzquests_idx_clist 
+      {}
+      
+    \clist_set:Nn \l__tikzquests_keys_clist {V,I}
+    \__tikzquests_map:NNn 
+      \l__tikzquests_keys_clist
+      \l__tikzquests_idx_clist 
+      {f \char_generate:nn { `\_ } { 8 }}
+  }
+  
+
+\AtBeginDocument{\__tikzquests_keys_set:}
+
+

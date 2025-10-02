@@ -67,7 +67,7 @@ The Current Maintainer of this work is Alceu Frigeri
     - documentation in PDF format
 
 -------------
-* Version 1.4 (next release)
+* Version 1.4 (internal release.. still using pgfkeys)
     - internals: delaying keys expansion 
     - removed (deprecated) "old keys"
     - re-factoring: some commands renamed (old ones still accessible, but deprecated)

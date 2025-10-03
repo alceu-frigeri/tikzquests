@@ -71,6 +71,7 @@ The Current Maintainer of this work is Alceu Frigeri
 * Version 1.4 (internal)
     - internals: delaying keys expansion
     - re-factoring: pgfkeys partly re-written as expl3 code.
+    - re-factoring: some commands renamed (old ones still accessible, but deprecated)
     - removed (deprecated) "old keys"
     - documentation
 

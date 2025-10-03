@@ -80,6 +80,7 @@ The Current Maintainer of this work is Alceu Frigeri
     - removed (deprecated) "old keys"
     - documentation
 
+
 * Version 1.3
     - Added an optional parameter to \defQuestionAlias allowing to "copy" questions from one repository into another. see documentation.
 

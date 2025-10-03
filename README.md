@@ -71,7 +71,7 @@ The Current Maintainer of this work is Alceu Frigeri
     - internals: delaying keys expansion 
     - re-factoring: pgfkeys partly re-written as expl3 code.
     - removed (deprecated) "old keys"
-    - documentantion
+    - documentation
 
 * Version 1.3
     - Added an optional parameter to \defQuestionAlias allowing to "copy" questions from one repository into another. see documentation.

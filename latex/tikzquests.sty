@@ -12,7 +12,7 @@
 %%
 %% The Current Maintainer of this work is Alceu Frigeri
 %%
-%% This is version {1.4} {2025/10/02}
+%% This is version {2.0} {2025/10/03}
 %%
 %% The list of files that compose this work can be found in the README.md file at
 %% https://ctan.org/pkg/tikzquests
@@ -23,8 +23,8 @@
 
 \ProvidesExplPackage
     {tikzquests}
-    {2025/10/02}
-    {1.4}
+    {2025/10/03}
+    {2.0}
     {A Simple Framework for (tikz/text) Parametric Questions}
 
 \ExplSyntaxOn
@@ -38,8 +38,8 @@
   {
      name        .code:n = {tikzquests} ,
      prefix      .code:n = {tikzquests} ,
-     date        .code:n = {2025/10/02},
-     version     .code:n = {1.4} ,
+     date        .code:n = {2025/10/03},
+     version     .code:n = {2.0} ,
      description .code:n = {A Simple Framework for (tikz/text) Parametric Questions}
   }
 \cs_if_exist:NF \PkgInfo 
@@ -385,7 +385,15 @@
   }
 
 
-\cs_new_protected:Npn \__tikzquests_sorted_list:nnnn #1#2#3#4
+%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%
+
+\coffin_new:N \l__tikzquests_tmpa_coffin
+\coffin_new:N \l__tikzquests_tmpb_coffin
+
+\cs_new_protected:Npn \__tikzquests_sorted_list_new:nnn #1#2#3
   {
       \prop_if_empty:cF {l__tikzquests_ #1 _ #2 _prop}
         {
@@ -400,22 +408,39 @@
                   { \sort_return_swapped: }
                   { \sort_return_same: }
               }
-            \begin{description}
+              
               \seq_map_inline:Nn \l__tikzquests_questions_seq
                 {
-                  \item[#3{##1}]                    
-                    #4[#1]{##1} \par
-                    \bool_if:nF {\l__tikzquests_inreview_bool}
-                      {  \__tikzquests_remarks:nnn {#1 _ #2}{##1}{}  }
-                    \vspace{0.35ex}
-                    \hrule\relax
+                  \coffin_clear:N \l__tikzquests_tmpa_coffin
+                  \coffin_clear:N \l__tikzquests_tmpb_coffin
+                  
+                  \vcoffin_set:Nnn \l__tikzquests_tmpa_coffin {0.2\textwidth}
+                    {
+                      \noindent \textbf{##1}
+                    }
+                  \vcoffin_set:Nnn \l__tikzquests_tmpb_coffin {0.8\textwidth}
+                    {
+                      \noindent #3[#1]{##1}
+                      \bool_if:nF {\l__tikzquests_inreview_bool}
+                        {  \__tikzquests_remarks:nnn {#1 _ #2}{##1}{}  }
+                    }
+                  \coffin_join:NnnNnnnn
+                    \l__tikzquests_tmpa_coffin {r}{vc}
+                    \l__tikzquests_tmpb_coffin {l}{vc}
+                    {0pt}{0pt}
+                  \noindent \coffin_typeset:Nnnnn \l__tikzquests_tmpa_coffin {l}{t}{0pt}{0pt}
+                  \skip_vertical:n{0.35ex}  
+                  {
+                    \color{white!20!gray}\hrule\relax
+                  }
+                  \skip_vertical:n{1ex}  
+                  
                 }    
-            \end{description}
         }
   }
 
 
-\NewDocumentCommand{\QuestionsList}{O{}}
+\NewDocumentCommand{\QuestionsFmtList}{O{}mm}
   {
     \tl_if_blank:nTF {#1}
       { 
@@ -456,20 +481,45 @@
     \seq_map_inline:Nn \l__tikzquests_tmpa_seq
       {
         \prop_if_exist:cTF {l__tikzquests_ ##1 _tikzrepo_prop}
-        {      
-          {\vspace{1ex}Repository~ Name:~ \large\textbf{##1}}\vspace{0.35ex}\hrule\relax\hrule\relax
+        {    
+          \skip_vertical:n{0.35ex}  
+          \hrule\relax\hrule\relax
           
-          {\vspace{1ex}~\hfill\emph{non~ starred~ ones~ -~ TikZ~ graphics}}\vspace{0.35ex}\hrule\relax
-          \__tikzquests_sorted_list:nnnn {##1}{tikzrepo}{\raisebox{3em}}{\tikzQuestion(0.35)}
+          \skip_vertical:n{1ex}  
+          Repository:~ \large\textbf{##1}
+          \skip_vertical:n{0.35ex}  
+          \hrule
           
-          {~\hfill\emph{starred~ ones~ -~ text/\TeX}}\vspace{0.35ex}\hrule\relax
-          \__tikzquests_sorted_list:nnnn {##1}{textrepo}{}{\Question*}
+          \skip_vertical:n{1ex}  
+          ~\hfill\emph{\underline{ non~ starred~ ones~ -~ TikZ~ graphics}}
+          \skip_vertical:n{0.35ex}  
+          
+          \__tikzquests_sorted_list_new:nnn {##1}{tikzrepo}{#3}
+          
+          \skip_vertical:n{1ex}  
+          ~\hfill\emph{\underline{starred~ ones~ -~ text/\TeX}}
+          \skip_vertical:n{0.35ex}  
+
+          \__tikzquests_sorted_list_new:nnn {##1}{textrepo}{#2}
         }
         {
           \msg_error:nnne {tikzquests}{invalid repository}{Qlist~01}{##1}
         }
       }
   }
+
+
+\NewDocumentCommand{\QuestionsList}{O{}}
+  {
+    \QuestionsFmtList[#1]{\Question*}{\tikzQuestion(0.35)}
+  }
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%
 
  
 \cs_new:Npn \__tikzquests_keys_set:n #1

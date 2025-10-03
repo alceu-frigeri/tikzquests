@@ -68,18 +68,17 @@ The Current Maintainer of this work is Alceu Frigeri
 
 -------------
 * Version 2.0 (this)
-    - re-factoring: fully re-written as expl3 code.
+    - re-factoring: fully re-written as expl3 code (and solving #3)
     - re-factoring: some commands renamed (old ones still accessible, but deprecated)
     - new, more flexible, command for listing questions: \QuestionsFmtList
     - documentation.
 
-* Version 1.4 (internal)
+* Version 1.4 
     - internals: delaying keys expansion
     - re-factoring: pgfkeys partly re-written as expl3 code.
     - re-factoring: some commands renamed (old ones still accessible, but deprecated)
     - removed (deprecated) "old keys"
     - documentation
-
 
 * Version 1.3
     - Added an optional parameter to \defQuestionAlias allowing to "copy" questions from one repository into another. see documentation.

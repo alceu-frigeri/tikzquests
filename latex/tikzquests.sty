@@ -547,14 +547,19 @@
           {
             \tl_set:cn {#2} {#4{##1}}
           } ,
+        #1 .value_required:n = true ,
+        
         #1* .code:n = 
           {
             \tl_set:cn {#2} {\ensuremath{##1}}
           } ,                      
+        #1* .value_required:n = true ,
+        
         #1 ~ raw .code:n = 
           {
             \tl_set:cn {#2} {##1}
           } ,                      
+        #1 ~ raw .value_required:n = true ,
       }
   }
 
@@ -622,7 +627,8 @@
       }
     \keys_define:nn { tikzquests / vars }
       {
-        #1 .tl_set:c = {l__tikzquests_ #1 _key_tl}
+        #1 .tl_set:c = {l__tikzquests_ #1 _key_tl} , 
+        #1 .value_required:n = true
       }    
   }
 

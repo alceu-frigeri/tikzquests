@@ -39,6 +39,22 @@
 \usepackage[american,siunitx,cuteinductors,smartlabels,arrowmos,EFvoltages,betterproportions]{circuitikz}
 \usetikzlibrary{math}
 
+
+\setnewcodekey{tikzquests}{letter={},
+  keywd={
+    Question,tikzQuestion,ftikzQuestion,
+    defQuestion,defQuestionAlias,
+    defRepository,SelectRepository,
+    QuestionsList,QuestVal
+    },
+  emph3={tikz, keys},
+  emph2={xtrakeys,xtraidx,no, defs,old, settings,no, alias,in, review, undef, color}
+  }
+
+
+
+
+
 \RequirePackage[hidelinks,hypertexnames=false]{hyperref}
 \begin{document}
 \tstitle{
@@ -63,14 +79,15 @@ The package offers
 \begin{itemize}
   \item A set of commands to create and use repositories,
   \item A set of commands to create and use 'questions' (code snippets) in a repository,
-  \item Question's customization, parametrization, based on \tsobj[pkg]{pgfkeys} and a set of associated macros.
+  \item Question's customization, parametrization, based on \tsobj[pkg]{keys} and a set of associated macros.
 \end{itemize}
 
 \section{Package Options}\label{package options}
 \begin{describelist}{option}
-\describe{xtrakeys}{This allows to expand the set of pre-defined (\tsobj[pkg]{pgfkeys}) keys. See \ref{parameters}.}
-\describe{xtraidx}{This allows to expand the set of pre-defined (\tsobj[pkg]{pgfkeys}) indexes per key. See \ref{parameters}.}
+\describe{xtrakeys}{This allows to expand the set of pre-defined (\tsobj[pkg]{keys}) keys. See \ref{parameters}.}
+\describe{xtraidx}{This allows to expand the set of pre-defined (\tsobj[pkg]{keys}) indexes per key. See \ref{parameters}.}
 \describe{no defs}{(default: false). This changes the parametrization strategy suppressing the creation of ``keys commands''.}
+\describe{old settings}{(default: false). This changes the assignment behaviour when \tsobj[option]{no defs} is set.  See \ref{parameters}}
 \describe{no alias}{(default: false). This suppress the creation of Question's aliases (see \ref{question definition}), handy when one wants to reduce the 'noise' when listing all currently known Questions.}
 \describe{in review}{(default: false). When using a question (see \ref{question use}), the question's associated remarks and annotations will be printed as well, if any.}
 \describe{undef color}{(default: red).  This sets the color used to indicated the use of a non defined parameter.  See \ref{parameters}.}
@@ -79,7 +96,7 @@ The package offers
 \section{Repositories}\label{repositories}
 Questions are stored in repositories. Per default there is one such repository, named \tsobj[option]{default}. Each repository has two sub-sets (a) a non-starred sub-set and (b) a starred sub-set. The rational behind it being to separate text questions snippets (e.g. the question enunciate) from graphics snippets (the graphics part of a question)). It is suggested (but not enforced) to store the text part in the starred sub-set and the graphics part (\tsobj[pkg]{tikz}) in the non-starred sub-set. A repository can have an ``unlimited'' set of questions. 
 \begin{tsremark}
-  All commands defined in \ref{question use} can use both subsets, except \tsobj{\QuestionsList} which assumes the non-starred sub-set has only text code, whilst the starred sub-set has a \tsobj[pkg]{tikz} graphic.
+  All commands defined in \ref{question use} can use both subsets, except \tsobj{\QuestionsList} which assumes the non-starred sub-set has only text code, whilst the starred sub-set has a \tsobj[pkg]{tikz} commands.
 \end{tsremark}
 
 \begin{codedescribe}[code,update=2025/10/01]{\defRepository,\SelectRepository}
@@ -120,7 +137,7 @@ As said, for each repository there are two sub-sets of questions (code snippets)
 
 Since the code re-factoring (version 1.11), the commands \tsobj{\defQuestion, \defQuestionAlias, \Question, \tikzQuestion, \ftikzQuestion} use/refer to the ``non-starred'' sub-set, while the commands \tsobj{\defQuestion*, \defQuestionAlias*, \Question*, \tikzQuestion*, \ftikzQuestion*} use/refer to the ``starred'' sub-set.
 
- All questions can be parameterized (see \ref{parameters} below) with a set of predefined keys, viz-à-viz, \tsobj[pkg]{pgfkeys}.
+ All questions can be parameterized (see \ref{parameters} below) with a set of predefined keys.
 
 \subsection{Defining a Question}\label{question definition}
 \begin{codedescribe}{\defQuestion}
@@ -158,7 +175,7 @@ Be aware that this will copy the question definition at the alias creation point
 \end{tsremark}
 
 \begin{tsremark}
-An error is raised if \tsobj[marg,sep=or]{dst-repository,org-repository,quest-name} don't exist.
+An error is raised if \tsobj[marg,sep=or]{dst-repository,org-repository,quest-name} doesn't exist.
 \end{tsremark}
 
 
@@ -173,13 +190,15 @@ An error is raised if \tsobj[marg,sep=or]{dst-repository,org-repository,quest-na
 \tsobj{\ftikzQuestion*}\tsargs[parg]{scale}\tsargs[oarg]{repository}\tsargs[marg]{quest-name}\tsargs[oarg]{key=value list}\tsargs[xarg]{annotation}
 \end{codesyntax}
 Those are the main commands to display a question. The star/non-star defines which sub-set  will be used. 
-
 \tsobj{\Question} is the ``raw'' base variant, the question's code will be used, as is, in a local group. The starred version \tsobj{\Question*} is meant for text questions, whilst  the non-starred version \tsobj{\Question} is meant for the case one wants to use a different graphic engine (for instance SVG, instead of the \tsobj[pkg]{tikz} as in \tsobj{\tikzQuestion}). Note that this is just a suggestion, and not enforced.
 
 The \tsobj{\tikzQuestion} will display the question's code inside a \tsobj[env]{tikzpicture} environment. And then, \tsobj{\ftikzQuestion} will further nest the code inside a \tsobj[env]{center} environment (preparing it to be used inside a floating environment).
 
-The \tsobj[oarg]{annotation} will only be added if, and only if, the \tsobj[option]{in review} option is being used. The \tsobj[parg]{scale} factor, when present, is related to the current \tsobj{\textwidth}, so a factor of 0.25 will scale the width of the question to 1/4th of the text width. The \tsobj[oarg]{key=value list} is a set of \tsobj[pkg]{pgfkeys}, see \ref{parameters} below.
+The \tsobj[oarg]{annotation} will only be added if, and only if, the \tsobj[option]{in review} option is being used. The \tsobj[parg]{scale} factor, when present, is related to the current \tsobj{\textwidth}, so a factor of 0.25 will scale the width of the question to 1/4th of the text width. The \tsobj[oarg]{key=value list} is a set of \tsobj[pkg]{keys}, see \ref{parameters} below.
 \end{codedescribe}
+\begin{tsremark}
+  Besides the key/parameters from \ref{parameters} there is a special key \tsobj[key]{tikz keys} which can be used to pass \tsobj[pkg]{tikz} specific parameters for the underlying environment, this key is ignored when using \tsobj[code,sep=or]{\Question,\Question*}.
+\end{tsremark}
 \begin{tsremark}[\color{red}Warning:]
   A Warning is raised if one uses the old (deprecated) \tsobj[code,sep=or]{\rawtikzQuestion,\textQuestion}. Use \tsobj{\Question} instead.
 \end{tsremark}
@@ -215,11 +234,11 @@ If a \tsobj[oarg]{repositories list}'s term finishes with a slash, ``/'', it wil
 An error is raised if any repository in \tsobj[marg]{repositories list} doesn't exist. To reduce the clutter (and number of questions listed) one should consider the use of the  \tsobj[option]{no alias} option.
 \end{tsremark}
 
-\section{Parameters as pgfkeys and auxiliary macros.}\label{parameters}
+\section{Parameters as keys and auxiliary macros.}\label{parameters}
 
-By default a set of \tsobj[pkg]{pgfkeys} and macros is defined as follow: \tsobj[marg]{ID}\tsobj[marg]{idx}. The predefined range of \tsobj[marg]{IDs} being \tsobj[key]{R,L,C,X,Y,Z,K,T,Q,EQ,V,I}. The predefined range of \tsobj[marg]{idx} spans from a, b, c up to z, aa, ab, ac up to az and, finally, ba, bb, bc up to bz. 
+By default a set of \tsobj[pkg]{keys} and macros is defined as follow: \tsobj[marg]{ID}\tsobj[marg]{idx}. The predefined range of \tsobj[marg]{IDs} being \tsobj[key]{R,L,C,X,Y,Z,K,T,Q,EQ,V,I}. The predefined range of \tsobj[marg]{idx} spans from a, b, c up to z, aa, ab, ac up to az and, finally, ba, bb, bc up to bz. 
 \begin{tsremark}
-That means, one gets to use \tsobj[pkg]{pgfkeys} as, for example, Ra=200, Lca=500, Kbe=230 and so on. For each of the key's \tsobj[marg]{ID} there is (per default) a set of 3x26 keys. If one adds some 3 other \tsobj[marg]{idx} then one gets 6x26 keys per \tsobj[marg]{ID}.
+That means, one gets to use \tsobj[pkg]{keys} as, for example, Ra=200, Lca=500, Kbe=230 and so on. For each of the key's \tsobj[marg]{ID} there is (per default) a set of 3x26 keys. If one adds some 3 other \tsobj[marg]{idx} then one gets 6x26 keys per \tsobj[marg]{ID}.
 \end{tsremark}
 \begin{tsremark}
 The \tsobj[marg]{ID} can be extended with the \tsobj[option]{xtrakeys} option. For example with \tsobj[option,sep={,}]{xtrakeys=\{NN,B\}}, each extra key will add 3x26 keys (per default).
@@ -235,10 +254,10 @@ The idea is that, when using the commands in \ref{question use}, if one doesn't 
 
 Besides those default keys, one can set and use any key at will (in \tsobj[oarg]{key=value list}) non-existing keys will be created ``on the fly'' with the given name as the default value.
 
-\subsection{Assigning a new value to pre-defined keys}
+\subsection{Assigning a value to pre-defined keys}
 In fact, with each and every predefined key there are 3 ways to assign a value to it \tsobj[oarg]{key}\,=\tsobj[value]{value}, \tsobj[oarg]{key*}\,=\tsobj[value]{value} and \tsobj[oarg]{key raw}\,=\tsobj[value]{value}. The difference being that \tsobj[oarg]{key raw} will assign whatever code/value to the key (and associated macro), \tsobj[oarg]{key*} will assign the code/value inside a math environment. 
 \begin{tsremark}[\color{red}warning:]
-\tsobj[oarg]{key}\,=\tsobj[value]{value} (without any specifier) will be the same as \tsobj[oarg]{key*} (default). But, if the option \tsobj[option]{no defs} is used, it will be equivalent to \tsobj[oarg]{key raw}.
+\tsobj[oarg]{key}\,=\tsobj[value]{value} (without any specifier) will be the same as \tsobj[oarg]{key*} (default). But, if the options \tsobj[option]{no defs,old settings} are used, it will be equivalent to \tsobj[oarg]{key raw}.
 \end{tsremark}
 
 \subsection{Assigning a value to new keys}
@@ -263,31 +282,33 @@ If the option \tsobj[option]{no defs} is defined, the only option to recover a k
 \tsmacro{\QuestVal}{IDidx}
 \tsmacro{\QuestVal}{key}
 \end{codesyntax}
-This will always recover the value of a key, regardless if the key is one of the pre-defined ones (in the form \tsobj[marg]{IDidx} or an ``on the fly'' one, \tsobj[marg]{key}.
-If the key didn't got (re)defined with the \tsobj[oarg]{key=value list}, this will return the key/parameter default value. In the case of a ``on the fly'' key, it will be the key's name in red (or the color set up with the \tsobj[option]{undef color} option, see \ref{package options}).
+This will always recover the value of a key, regardless if the key is one of the pre-defined ones (in the form \tsobj[marg]{IDidx} or an ``on the fly'' new one, \tsobj[marg]{key}.
+If the key didn't got (re)defined with the \tsobj[oarg]{key=value list}, it will return the key/parameter default value. In the case of a ``on the fly'' key, it will be the key's name in red (or the color set up with the \tsobj[option]{undef color} option, see \ref{package options}).
 
-This should be safe in most situations where \tsobj{\pgfkeys} command can be used. Though, the safest, and most robust, way to use a parameter/key is using it's related macro.
+%This should be safe in most situations where \tsobj{\pgfkeys} command can be used. Though, the safest, and most robust, way to use a parameter/key is using it's related macro.
 \end{codedescribe}
-\begin{tsremark}
-  Whereas \tsobj{\QuestVal} can't be used (e.g. a fully expandable command is needed), it is possible to use the \tsmeta{handler}/.get syntax from pgfkeys, to recover key into an auxiliary macro, for instance \tsobj[verb]{\QuestVal{my-key/.get=\keycmd}} will recover \tsmeta{my-key} value into \tsobj{\keycmd}. This applies to all keys if the \tsobj[option]{no defs} package option is being used. Otherwise, it applies only to the non pre-defined keys (by default, the pre-defined ones already have set a collection of auxiliary commands).
-  Of course, \tsmeta{my-key}/.get  will recover a value only if the key has already been set, blank otherwise.
-\end{tsremark}
+%\begin{tsremark}
+%  Whereas \tsobj{\QuestVal} can't be used (e.g. a fully expandable command is needed), it is possible to use the \tsmeta{handler}/.get syntax from pgfkeys, to recover key into an auxiliary macro, for instance \tsobj[verb]{\QuestVal{my-key/.get=\keycmd}} will recover \tsmeta{my-key} value into \tsobj{\keycmd}. This applies to all keys if the \tsobj[option]{no defs} package option is being used. Otherwise, it applies only to the non pre-defined keys (by default, the pre-defined ones already have set a collection of auxiliary commands).
+%  Of course, \tsmeta{my-key}/.get  will recover a value only if the key has already been set, blank otherwise.
+%\end{tsremark}
 
 \section{Examples of Use}
+
+
 
 \subsection{Package Options}
 \begin{codestore}[pack.options A]
 \usepackage{tikzquests}
 \end{codestore}
 
-\tscode*[codeprefix={Package Options},emph={pgfkeysearchvalueof}]{pack.options A}
+\tscode*[tikzquests,codeprefix={Package Options}]{pack.options A}
 This is the default case, in which both \tsobj{\QuestVal} and (for default keys) associated macro name can be used to retrieve a key/parameter value.
 
 \begin{codestore}[pack.options B]
 \usepackage[xtrakeys={EX,N},xtraidx={f,h},undef color={blue},no defs]{tikzquests}
 \end{codestore}
 
-\tscode*[codeprefix={Package Options},emph={pgfkeysearchvalueof}]{pack.options B}
+\tscode*[tikzquests,codeprefix={Package Options}]{pack.options B}
 
 In this case, one will get the following set of keys
 
@@ -298,13 +319,13 @@ In this case, one will get the following set of keys
 \item Na, Nb ... Nz, Nab, Nab ... Naz .... \emph{Nfa, Nfb ... Nfz, Nha, Nhb ... Nhz}
 \end{itemize}
 
-Besides that, the undefined color will be blue and no additional macro will be defined, in which case on has to use \tsobj{\QuestVal} to recover the value of a key/parameter.
+Besides that, the undefined color will be blue and no additional macro will be defined, meaning that \tsobj{\QuestVal} is the only option to retrieve the value of a key/parameter.
 
 \begin{codestore}[pack.options C]
 \usepackage[no alias, in review]{tikzquests}
 \end{codestore}
 
-\tscode*[codeprefix={Package Options},emph={pgfkeysearchvalueof}]{pack.options C}
+\tscode*[tikzquests,codeprefix={Package Options}]{pack.options C}
 In this case, no alias will be defined (the command \tsobj{\defQuestionAlias} will be ignored), and when using \tsobj{\tikzQuestion} (and similar) the question's remarks (defined by \tsobj{\defQuestion}) and annotations (from \tsobj{\tikzQuestion}) will be printed. The \tsobj[option]{no alias} is specially useful when using the command \tsobj{\QuestionsList}.
 
 \subsection{A More Complete Example}
@@ -360,7 +381,7 @@ In the following code, an extra repository will be set (besides the default one)
 }[this is a CircuiTikZ example]
 \end{codestore}
 
-\tscode*[codeprefix={Defining Questions},resultprefix={Result: \emph{no output}},emph={Ra,Rb,Rc,Rd,Rg,Vi,Vbc,Vo,QuestVal,Beta,Gain,raw,DC,level},emph2={Question,SelectRepository,defRepository},basicstyle={\scriptsize\ttfamily}]{DefQuestion}
+\tscode*[tikzquests,codeprefix={Defining Questions},resultprefix={Result: \emph{no output}},emph={Ra,Rb,Rc,Rd,Rg,Vi,Vbc,Vo,Beta,Gain,raw,DC,level}]{DefQuestion}
 
 \tsexec{DefQuestion}
 
@@ -379,7 +400,7 @@ Choose one of the following two questions:
 \end{enumerate}
 \end{codestore}
 
-\tscode*[codeprefix={Questions Defaults},resultprefix={}, emph={Ra,Rb,Rc,Rd,Rg,Vi,Vbc,Vo,QuestVal,Beta,Gain,raw,DC,level}, emph2={Question,ftikzQuestion}, basicstyle={\scriptsize\ttfamily}]{QuestionDefault}
+\tscode*[tikzquests, codeprefix={Questions Defaults},resultprefix={},  emph={Ra,Rb,Rc,Rd,Rg,Vi,Vbc,Vo,Beta,Gain,raw,DC,level}]{QuestionDefault}
 
 
 \hrule\relax\vspace{0.5ex}
@@ -401,14 +422,14 @@ Choose one of the following two questions:
 
 \begin{enumerate}
   \item \Question*[Repo 2]{Quest A:1}[Beta=200,Gain=4,Ra=50\Omega]<just a last minute note about this>\par
-  \ftikzQuestion(0.4)[Repo 2]{Elect. 1a}[Ra=50\Omega,Rb*=100\Omega,Rg raw=$100\Omega$,Rc=100\Omega,Rd=R_c,Vbc=18V,Vi=v_i(t),Vo=v_o(t)]
+  \ftikzQuestion(0.4)[Repo 2]{Elect. 1a}[Ra=50\Omega,Rb*=100\Omega,Rg raw=$100\Omega$,Rc=100\Omega,Rd=R_c,Vbc=18V,Vi=v_i(t),Vo=v_o(t),tikz keys={thick,red}] %%Note the use of the 'tikz keys' key...
   
   \item \Question*[default]{Quest A:1}[Beta=200,DC level=8V,Rg=R_{b1},Vo=v_o(t)]<just for the sake of it...>\par
   \ftikzQuestion(0.4)[default]{Elect. 1b}[Ra=50\Omega,Rb*=100\Omega,Rg=R_{b1},Rc=100\Omega,Rd=200\Omega,Vbc=18V,Vi=v_i(t),Vo=v_o(t)]
 \end{enumerate}
 \end{codestore}
 
-\tscode*[codeprefix={Questions Using Parameters},resultprefix={Result: \emph{no output}},emph={Ra,Rb,Rc,Rd,Rg,Vi,Vbc,Vo,QuestVal,Beta,Gain,raw,DC,level},emph2={textQuestion,ftikzQuestion},basicstyle={\scriptsize\ttfamily}]{QuestionUse}
+\tscode*[tikzquests, codeprefix={Questions Using Parameters},resultprefix={Result: \emph{no output}},emph={Ra,Rb,Rc,Rd,Rg,Vi,Vbc,Vo,Beta,Gain,raw,DC,level}]{QuestionUse}
 
 \hrule\relax\vspace{0.5ex}
 
@@ -416,19 +437,19 @@ Choose one of the following two questions:
 
 \begin{enumerate}
   \item \Question*[Repo 2]{Quest A:1}[Beta=200,Gain=4,Ra=50\Omega]<just a last minute note about this>\par
-  \ftikzQuestion(0.4)[Repo 2]{Elect. 1a}[Ra=50\Omega,Rb*=100\Omega,Rg raw=$100\Omega$,Rc=100\Omega,Rd=R_c,Vbc=18V,Vi=v_i(t),Vo=v_o(t)]
+  \ftikzQuestion(0.4)[Repo 2]{Elect. 1a}[Ra=50\Omega,Rb*=100\Omega,Rg raw=$100\Omega$,Rc=100\Omega,Rd=R_c,Vbc=18V,Vi=v_i(t),Vo=v_o(t),tikz keys={thick,red}]
   
   \item \Question*[default]{Quest A:1}[Beta=200,DC level=8V,Rg=R_{b1},Vo=v_o(t)]<just for the sake of it...>\par
   \ftikzQuestion(0.4)[default]{Elect. 1b}[Ra=50\Omega,Rb*=100\Omega,Rg=R_{b1},Rc=100\Omega,Rd=200\Omega,Vbc=18V,Vi=v_i(t),Vo=v_o(t)]
 \end{enumerate}
 
-\subsection{Creating a Questions' List}
+\subsection{Listing all Questions}
 To round it up, using the \tsobj{\QuestionsList} (see \ref{question use}):
 \begin{codestore}[Qlist]
 \QuestionsList
 \end{codestore}
 
-\tscode*{Qlist}
+\tscode*[tikzquests]{Qlist}
 
 One get's: 
 

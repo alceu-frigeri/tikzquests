@@ -28,7 +28,7 @@
 %%%==============================================================================
 \documentclass[10pt]{article}
 %\RequirePackage[verbose,a4paper,marginparwidth=27.5mm,top=2.5cm,bottom=1.5cm,hmargin={40mm,20mm},marginparsep=2.5mm,columnsep=10mm,asymmetric]{geometry}
-\usepackage[no defs]{tikzquests}
+\usepackage[no defs,old settings]{tikzquests}
 \usepackage[tikz,math]{afperpack}
 
 \RequirePackage[inline]{enumitem}
@@ -74,12 +74,12 @@
 }
 
 \defQuestion{E.I:BandWidth:02c}{%
-\pgfkeys{/tikzquests,Yb/.get=\YYb}
+%\pgfkeys{/tikzquests,Yb/.get=\YYb}
   \draw 
   (0,2) \ncoord(Aa) 
-  (0,0) \ncoord(Ab)to[R,l=\QuestVal{Yxb}] ++(10,0)
+  (0,0) \ncoord(Ab)to[R,l=\Yab] ++(10,0)
   %node[Quad,anchor=inner 1+,inner x fit to={Aa}{Ba},y fit to=(Aa)(Ab)](Qa){}
-  (0,0) node[Quad Y,y fit to={Aa}{Ab},european,Y11=\YYb,Y22=\YYb,Y12=-\YYb,Y21=-\YYb](Qa){}
+  (0,0) node[Quad Y,y fit to={Aa}{Ab},european,Y11=\QuestVal{Yb},Y22=\QuestVal{Yb},Y12=-\QuestVal{Yb},Y21=-\QuestVal{Yb}](Qa){}
   ;
 }
 
@@ -146,13 +146,20 @@
 %and then
 %\QuestionsList[EletronicaI/]
 
-\ftikzQuestion[EletronicaI/bipolar]{E.I:BandWidth:02c}[Yxb=5]
+\ftikzQuestion[EletronicaI/bipolar]{E.I:BandWidth:02c}[Yb=Y4]
 
-\pgfkeys{/tikzquests,Raa/.get=\xx}
-\xx 
-%\pgfkeys{/tikzquests,Rzz}
-%%\yy
-\pgfkeys{/tikzquests,Rzz/.get=\yy}
-\yy
+%\pgfkeys{/tikzquests,Raa/.get=\xx}
+%\xx 
+%%\pgfkeys{/tikzquests,Rzz}
+%%%\yy
+%\pgfkeys{/tikzquests,Rzz/.get=\yy}
+%\yy
+
+
+
+\ExplSyntaxOn
+\keys_set:nn {tikzquests / vars} {X=}
+\keys_set:nn {tikzquests / vars} {A}
+\ExplSyntaxOff
 
 \end{document} 

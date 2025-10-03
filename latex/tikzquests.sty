@@ -53,8 +53,8 @@
 %%%%%%%
 
 
-\newif\iftikzquests@@nodefs
-\tikzquests@@nodefsfalse
+%\newif\iftikzquests@@nodefs
+%\tikzquests@@nodefsfalse
 
 \keys_define:nn {tikzquests }
   {
@@ -82,8 +82,12 @@
     no~ defs  .bool_set:N = \l__tikzquests_nodefs_bool ,
     no~ defs  .value_forbidden:n  = true ,
 
+    old~ settings  .usage:n = load ,
+    old~ settings  .bool_set:N = \l__tikzquests_oldsettings_bool ,
+    old~ settings  .value_forbidden:n  = true ,
   }
 \ProcessKeyOptions [ tikzquests ]
+
 
 
 %%%%%%%%%%%%%%%%%%
@@ -293,6 +297,10 @@
       }
   }  
 
+\cs_new_protected:Npn \__tikzquests_pgfkeys:n #1
+  {
+    \pgfkeys{tikz , #1}
+  }
   
 \tl_new:N \l__tikzquests_repo_tl    
 \NewDocumentCommand{\tikzQuestion}{sD(){}O{\l__tikzquests_active_repository_tl}mO{}D<>{}}
@@ -307,14 +315,16 @@
           \tl_if_blank:nTF {#2}
             {
       				\begin{tikzpicture}
-                \__tikzquests_pgfkeys:n{#5}
+                \__tikzquests_keys_set:n{#5}
+                \exp_args:NV \__tikzquests_pgfkeys:n \l__tikzquests_tikz_keys_tl
         				\l__tikzquests_tmp_tl
       				\end{tikzpicture}
             }
             {
       				\resizebox{#2\textwidth}{!}{
       				\begin{tikzpicture}
-                \__tikzquests_pgfkeys:n{#5}
+                \__tikzquests_keys_set:n{#5}
+                \exp_args:NV \__tikzquests_pgfkeys:n \l__tikzquests_tikz_keys_tl
         				\l__tikzquests_tmp_tl
       				\end{tikzpicture}}
             }
@@ -338,7 +348,7 @@
       \prop_get:cnNTF {l__tikzquests_ #1 _ #2 _prop} {#3} \l__tikzquests_tmp_tl
         {
           \begingroup
-            \__tikzquests_pgfkeys:n{#4}
+            \__tikzquests_keys_set:n{#4}
      				\l__tikzquests_tmp_tl
           \endgroup
           \__tikzquests_inreview_remarks:nnn {#1 _ #2}{#3}{#5}
@@ -448,8 +458,10 @@
         \prop_if_exist:cTF {l__tikzquests_ ##1 _tikzrepo_prop}
         {      
           {\vspace{1ex}Repository~ Name:~ \large\textbf{##1}}\vspace{0.35ex}\hrule\relax\hrule\relax
+          
           {\vspace{1ex}~\hfill\emph{non~ starred~ ones~ -~ TikZ~ graphics}}\vspace{0.35ex}\hrule\relax
           \__tikzquests_sorted_list:nnnn {##1}{tikzrepo}{\raisebox{3em}}{\tikzQuestion(0.35)}
+          
           {~\hfill\emph{starred~ ones~ -~ text/\TeX}}\vspace{0.35ex}\hrule\relax
           \__tikzquests_sorted_list:nnnn {##1}{textrepo}{}{\Question*}
         }
@@ -459,18 +471,42 @@
       }
   }
 
-
-\cs_new:Npn \__tikzquests_pgfkeys:n #1
-  { \pgfkeys{\l__tikzquests_zpath_tl, #1} }
-
-\cs_set_eq:NN \QuestVal \__tikzquests_pgfkeys:n
-
-\NewDocumentCommand {\QuestValGet}{mm}
-  {
-    \pgfkeys{\l__tikzquests_zpath_tl, #1/.get=#2}
+ 
+\cs_new:Npn \__tikzquests_keys_set:n #1
+  { 
+    \keys_set:nn { tikzquests / vars }
+      {#1}
   }
 
-\tl_const:Nn \l__tikzquests_zpath_tl {/tikzquests}
+
+\NewDocumentCommand {\QuestVal} {m}
+  {
+    \tl_if_exist:cTF {l__tikzquests_ #1 _key_tl}
+      { \use:c {l__tikzquests_ #1 _key_tl} }
+      { 
+        \textbf { \emph{ \color{ \l__tikzquests_undefcolor_tl } #1  } }
+      }
+  }
+
+\cs_new_protected:Npn \__tikzquests_keydef:nnnN #1#2#3#4
+  {
+    \tl_set:cn {#2} {#3}
+    \keys_define:nn { tikzquests / vars }
+      {
+        #1 .code:n = 
+          {
+            \tl_set:cn {#2} {#4{##1}}
+          } ,
+        #1* .code:n = 
+          {
+            \tl_set:cn {#2} {\ensuremath{##1}}
+          } ,                      
+        #1 ~ raw .code:n = 
+          {
+            \tl_set:cn {#2} {##1}
+          } ,                      
+      }
+  }
 
 
 \cs_new_protected:Npn \__tikzquests_keys:NNn #1#2#3
@@ -481,65 +517,76 @@
           {
             \clist_map_inline:nn {a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z}
               {
-                \cs_set:cpn {##1####1########1} {\ensuremath{##1 \char_generate:nn { `\_ } { 8 } {#3{####1########1}}}}
-                \pgfkeys{\l__tikzquests_zpath_tl,
-                  ##1####1########1/.code = 
-                    {
-                      \ifx################1\pgfkeysnovalue
-                        \use:c{##1####1########1}
-                      \else%
-                        \cs_set:cpn{##1####1########1} {\ensuremath{################1}}%
-                      \fi%                      
-                    },%
-            			##1####1########1*/.code={\cs_set:cpn{##1####1########1} {\ensuremath{################1}}},%
-                  ##1####1########1*/.value ~ required,%
-            			##1####1########1 ~ raw/.code={\cs_set:cpn{##1####1########1} {################1}},%
-                  ##1####1########1 ~ raw/.value ~ required,%     
-                }
+                \exp_args:Ncc \tl_set:Nn {l__tikzquests_ ##1####1########1 _key_tl} {##1####1########1}
+                \__tikzquests_keydef:nnnN 
+                  { ##1####1########1 }
+                  { ##1####1########1 }
+                  {\ensuremath{##1 \char_generate:nn { `\_ } { 8 } {#3{####1########1}}}}
+                  \ensuremath
               }
           }
       }   
   }
 
 
-
 \cs_new_protected:Npn \__tikzquests_keys_nodefs:NNn #1#2#3
   {
+    \bool_if:NTF \l__tikzquests_oldsettings_bool
+      {
+        \cs_set_eq:NN \__tikzquests_auxi: \relax
+      }
+      {
+        \cs_set_eq:NN \__tikzquests_auxi: \ensuremath
+      }
     \clist_map_inline:Nn #1
       {
         \clist_map_inline:Nn #2
           {
             \clist_map_inline:nn {a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z}
               {
-                \pgfkeys{\l__tikzquests_zpath_tl,
-            			##1####1########1 /.initial={\ensuremath{##1 \char_generate:nn { `\_ } { 8 } {#3{####1########1}}}},%
-            			##1####1########1*/.style={##1####1########1 =  {\ensuremath{################1}}},%
-                  ##1####1########1*/.value ~ required,%
-            			##1####1########1 ~ raw/.style={##1####1########1 = {################1}},%
-                  ##1####1########1 ~ raw/.value ~ required,%     
-                }
+                \__tikzquests_keydef:nnnN
+                  { ##1####1########1 }
+                  { l__tikzquests_ ##1####1########1 _key_tl }
+                  {\ensuremath{##1 \char_generate:nn { `\_ } { 8 } {#3{####1########1}}}}
+                  \__tikzquests_auxi:
               }
           }
       }   
   }
 
 
+
+
+\cs_new_protected:Npn \__tikzquests_newkey:nn #1#2
+  {
+    \tl_if_empty:nTF {#2}
+      {
+        \tl_set:cn {l__tikzquests_ #1 _key_tl} 
+          {
+            \textbf { \emph{ \color{ \l__tikzquests_undefcolor_tl } #1  } }
+          }        
+      }
+      {
+        \tl_set:cn {l__tikzquests_ #1 _key_tl} 
+          { #2 }        
+      }
+    \keys_define:nn { tikzquests / vars }
+      {
+        #1 .tl_set:c = {l__tikzquests_ #1 _key_tl}
+      }    
+  }
+
+
 \cs_new_protected:Npn \__tikzquests_keys_set: 
   {
-    \pgfkeys{\l__tikzquests_zpath_tl/.is ~ family, \l__tikzquests_zpath_tl,
-      .unknown/.code={
-          \ifx##1\pgfkeysnovalue
-            \textbf{\emph{\color{\l__tikzquests_undefcolor_tl}\pgfkeyscurrentname}}
-          \else
-            \pgfkeysalso{\pgfkeyscurrentname/.initial={##1}}
-          \fi
-      },
-    }
-    \pgfkeys{\l__tikzquests_zpath_tl/.is ~ family, \l__tikzquests_zpath_tl,
-      .unknown/.get/.code={
-            \def{##1}{\emph{\color{\l__tikzquests_undefcolor_tl}ASD\pgfkeyscurrentname}}
+    \keys_define:nn { tikzquests / vars }
+      {
+        unknown .code:n = 
+          {
+            \exp_args:NV \__tikzquests_newkey:nn \l_keys_key_str {##1}          
+          } ,
+        tikz ~ keys .tl_set:N = \l__tikzquests_tikz_keys_tl
       }
-  	}
 
     \clist_set:Nn \l__tikzquests_keys_clist {R,L,C,X,Y,Z,K,T,Q,EQ,V,I}
     \clist_put_right:NV \l__tikzquests_keys_clist \l__tikzquests_xtrakeys_tl

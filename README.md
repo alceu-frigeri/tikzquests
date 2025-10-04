@@ -67,7 +67,12 @@ The Current Maintainer of this work is Alceu Frigeri
     - documentation in PDF format
 
 -------------
-* Version 2.0 (this)
+* Version 2.0a (this)
+    - documentation typos
+    - issue #4
+    - code cleanup
+
+* Version 2.0
     - re-factoring: fully re-written as expl3 code (and solving #3)
     - re-factoring: some commands renamed (old ones still accessible, but deprecated)
     - new, more flexible, command for listing questions: \QuestionsFmtList

@@ -20,7 +20,7 @@
 %%
 %% The Current Maintainer of this work is Alceu Frigeri
 %%
-%% This is version {2.0} {2025/10/03}
+%% This is version {2.0a} {2025/10/04}
 %%
 %% The list of files that compose this work can be found in the README.md file at
 %% https://ctan.org/pkg/tikzquests
@@ -94,7 +94,7 @@ The package offers
 \end{describelist}
 
 \section{Repositories}\label{repositories}
-Questions are stored in repositories. Per default there is one such repository, named \tsobj[option]{default}. Each repository has two sub-sets (a) a non-starred sub-set and (b) a starred sub-set. The rational behind it being to separate text part (e.g. the question enunciate) from graphics part. It is suggested (but not enforced) to store the text part in the starred sub-set and the graphics part (\tsobj[pkg]{tikz}) in the non-starred sub-set. A repository can have an ``unlimited'' set of questions. 
+Questions are stored in repositories. There is a pre-defined one, named \tsobj[option]{default}. Each repository has two sub-sets (a) a non-starred sub-set and (b) a starred sub-set. The rational behind it it to be able to separate the text part (e.g. the question enunciate) from the graphics part. It is suggested (but not enforced) to store the text part in the starred sub-set and the graphics part (\tsobj[pkg]{tikz}) in the non-starred sub-set. A repository can have an ``unlimited'' set of questions. 
 \begin{tsremark}
   All commands defined in \ref{question use} can use both subsets, except \tsobj{\QuestionsList} which assumes the non-starred sub-set has only text code, whilst the starred sub-set has a \tsobj[pkg]{tikz} commands.
 \end{tsremark}
@@ -135,7 +135,7 @@ When Selecting a repository, an error is raised if \tsobj[marg]{repository} does
 \section{Questions}
 As said, for each repository there are two sub-sets of questions (code snippets): starred ones, though for text (which may include \LaTeXe\ commands) and non starred ones though for graphics (for instance, to be used inside a \tsobj[pkg]{tikz} environment). 
 
-Since the code re-factoring (version 1.4), the commands \tsobj{\defQuestion, \defQuestionAlias, \Question, \tikzQuestion, \ftikzQuestion} use/refer to the ``non-starred'' sub-set, while the commands \tsobj{\defQuestion*, \defQuestionAlias*, \Question*, \tikzQuestion*, \ftikzQuestion*} use/refer to the ``starred'' sub-set.
+Since the code re-factoring (version 2.0), the commands \tsobj{\defQuestion, \defQuestionAlias, \Question, \tikzQuestion, \ftikzQuestion} use/refer to the ``non-starred'' sub-set, while the commands \tsobj{\defQuestion*, \defQuestionAlias*, \Question*, \tikzQuestion*, \ftikzQuestion*} use/refer to the ``starred'' sub-set.
 
  All questions can be parameterized (see \ref{parameters} below) with a set of predefined keys.
 
@@ -150,7 +150,7 @@ Since the code re-factoring (version 1.4), the commands \tsobj{\defQuestion, \de
 The starred version \tsobj{\defQuestion*} will create the question in the ``starred sub-set'', whilst the non starred one \tsobj{\defQuestion} will create the question in the ``non starred sub-set''. 
 \end{codedescribe}
 \begin{tsremark}
-  Since the code re-factoring (2025/10/01) all commands in \ref{question use} can used both sets of questions, with one exception: \tsobj{\QuestionsList} witch assumes that the starred set stores text and the non-starred stores \tsobj[pkg]{tikz} graphics.
+  Since the code re-factoring (version 2.0) all commands in \ref{question use} can use both sets of questions, with one exception: \tsobj{\QuestionsList} which assumes that the starred set stores text and the non-starred stores \tsobj[pkg]{tikz} graphics.
 \end{tsremark}
 \begin{tsremark}
 About question's names: It can be almost anything, the name can contain strings normally not allowed in a macro name, like spaces, dots, two-dots and so on, including backslashes, meaning that if someone typesets \tsobj{\XYZ} as a question name, \tsobj{\XYZ} will be it's name: a backslash isn't an active character anymore and one can't use macros when defining a question's name.

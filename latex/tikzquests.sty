@@ -12,7 +12,7 @@
 %%
 %% The Current Maintainer of this work is Alceu Frigeri
 %%
-%% This is version {2.0} {2025/10/03}
+%% This is version {2.0a} {2025/10/04}
 %%
 %% The list of files that compose this work can be found in the README.md file at
 %% https://ctan.org/pkg/tikzquests
@@ -23,11 +23,10 @@
 
 \ProvidesExplPackage
     {tikzquests}
-    {2025/10/03}
-    {2.0}
+    {2025/10/04}
+    {2.0a}
     {A Simple Framework for (tikz/text) Parametric Questions}
 
-\ExplSyntaxOn
 %%%%%%%
 %%%
 %%% Just an attempt of having my packages info in a regular way
@@ -38,8 +37,8 @@
   {
      name        .code:n = {tikzquests} ,
      prefix      .code:n = {tikzquests} ,
-     date        .code:n = {2025/10/03},
-     version     .code:n = {2.0} ,
+     date        .code:n = {2025/10/04},
+     version     .code:n = {2.0a} ,
      description .code:n = {A Simple Framework for (tikz/text) Parametric Questions}
   }
 \cs_if_exist:NF \PkgInfo 
@@ -184,8 +183,7 @@
   {
     \__tikzquests_new_repository:nn {#1}{#2}
   }  
-%\cs_new_eq:NN   \defRepository \defRepository
-%
+
 \NewDocumentCommand\defNewRepository{sm}
   {
     \msg_warning:nnnnn {tikzquests}{deprecated}{dep~03}{\defNewRepository}{\defRepository}
@@ -393,7 +391,7 @@
 \coffin_new:N \l__tikzquests_tmpa_coffin
 \coffin_new:N \l__tikzquests_tmpb_coffin
 
-\cs_new_protected:Npn \__tikzquests_sorted_list_new:nnn #1#2#3
+\cs_new_protected:Npn \__tikzquests_sorted_list:nnn #1#2#3
   {
       \prop_if_empty:cF {l__tikzquests_ #1 _ #2 _prop}
         {
@@ -410,10 +408,7 @@
               }
               
               \seq_map_inline:Nn \l__tikzquests_questions_seq
-                {
-                  \coffin_clear:N \l__tikzquests_tmpa_coffin
-                  \coffin_clear:N \l__tikzquests_tmpb_coffin
-                  
+                {                  
                   \vcoffin_set:Nnn \l__tikzquests_tmpa_coffin {0.2\textwidth}
                     {
                       \noindent \textbf{##1}
@@ -433,8 +428,7 @@
                   {
                     \color{white!20!gray}\hrule\relax
                   }
-                  \skip_vertical:n{1ex}  
-                  
+                  \skip_vertical:n{1ex}                 
                 }    
         }
   }
@@ -486,7 +480,7 @@
           \hrule\relax\hrule\relax
           
           \skip_vertical:n{1ex}  
-          Repository:~ \large\textbf{##1}
+          {Repository:~ \large\textbf{##1}}
           \skip_vertical:n{0.35ex}  
           \hrule
           
@@ -494,13 +488,13 @@
           ~\hfill\emph{\underline{ non~ starred~ ones~ -~ TikZ~ graphics}}
           \skip_vertical:n{0.35ex}  
           
-          \__tikzquests_sorted_list_new:nnn {##1}{tikzrepo}{#3}
+          \__tikzquests_sorted_list:nnn {##1}{tikzrepo}{#3}
           
           \skip_vertical:n{1ex}  
           ~\hfill\emph{\underline{starred~ ones~ -~ text/\TeX}}
           \skip_vertical:n{0.35ex}  
 
-          \__tikzquests_sorted_list_new:nnn {##1}{textrepo}{#2}
+          \__tikzquests_sorted_list:nnn {##1}{textrepo}{#2}
         }
         {
           \msg_error:nnne {tikzquests}{invalid repository}{Qlist~01}{##1}

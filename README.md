@@ -67,7 +67,13 @@ The Current Maintainer of this work is Alceu Frigeri
     - documentation in PDF format
 
 -------------
-* Version 2.0a (this)
+* Version 2.1 (this)
+    - documentation typos
+    - some code cleanup
+    - removing duplicates before processing key`s ID/idx
+
+
+* Version 2.0a
     - documentation typos
     - issue #4
     - code cleanup

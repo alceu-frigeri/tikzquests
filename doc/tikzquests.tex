@@ -20,7 +20,7 @@
 %%
 %% The Current Maintainer of this work is Alceu Frigeri
 %%
-%% This is version {2.0a} {2025/10/04}
+%% This is version {2.1} {2025/10/06}
 %%
 %% The list of files that compose this work can be found in the README.md file at
 %% https://ctan.org/pkg/tikzquests
@@ -52,9 +52,6 @@
   }
 
 
-
-
-
 \RequirePackage[hidelinks,hypertexnames=false]{hyperref}
 \begin{document}
 \tstitle{
@@ -62,7 +59,7 @@
   date={\tsdate},
   title={The tikzquests package\break A parametric questions' repository\break Version \PkgInfo{tikzquests}{version}}
   }
-  
+
 \begin{typesetabstract}
 
 This is a framework for building parametric questions' repositories, which can be further used to construct parametric questions for exams. Unlike other packages (for instance \tsobj[pkg,sep={or}]{exam,exam-n,exam-lite}) this doesn't try to enforce any pre-defined presentation format, focusing only on how to set a repository and use it.
@@ -92,11 +89,14 @@ The package offers
 \describe{in review}{(default: false). When using a question (see \ref{question use}), the question's associated remarks and annotations will be printed as well, if any.}
 \describe{undef color}{(default: red).  This sets the color used to indicated the use of a non defined parameter.  See \ref{parameters}.}
 \end{describelist}
+\begin{tsremark}
+  The effective sets of \tsobj[key]{keys,indexes} are logged as a package info.
+\end{tsremark}
 
 \section{Repositories}\label{repositories}
-Questions are stored in repositories. There is a pre-defined one, named \tsobj[option]{default}. Each repository has two sub-sets (a) a non-starred sub-set and (b) a starred sub-set. The rational behind it it to be able to separate the text part (e.g. the question enunciate) from the graphics part. It is suggested (but not enforced) to store the text part in the starred sub-set and the graphics part (\tsobj[pkg]{tikz}) in the non-starred sub-set. A repository can have an ``unlimited'' set of questions. 
+Questions are stored in repositories. There is a pre-defined one, named \tsobj[option]{default}. Each repository has two sub-sets (a) a non-starred sub-set and (b) a starred sub-set. The rational behind it is to be able to separate the text part (e.g. the question enunciate) from the graphics part. It is suggested (but not enforced) to store the text part in the starred sub-set and the graphics part (\tsobj[pkg]{tikz}) in the non-starred sub-set. A repository can have an ``unlimited'' set of questions. 
 \begin{tsremark}
-  All commands defined in \ref{question use} can use both subsets, except \tsobj{\QuestionsList} which assumes the non-starred sub-set has only text code, whilst the starred sub-set has a \tsobj[pkg]{tikz} commands.
+  All commands defined in \ref{question use} can use both subsets, except \tsobj{\QuestionsList} which assumes the non-starred sub-set has only text code, whilst the starred sub-set has \tsobj[pkg]{tikz} commands.
 \end{tsremark}
 
 \begin{codedescribe}[code,update=2025/10/01]{\defRepository,\SelectRepository}
@@ -117,10 +117,6 @@ About repository's names: It can be almost anything, the name can contain string
 \begin{tsremark}
 Do not create a repository with an ending slash, like ``repoName/''. Given the way sub-repositories are defined, it will render impossible to list this repository questions, see \ref{quest list}
 \end{tsremark}
-
-%\begin{tsremark}
-%  As said, each repository has two sub-sets: (a) non-starred subset, though to store (\tsobj[pkg]{tikz}) graphics  and (b) starred subset, though to store text.
-%\end{tsremark}
 
 \begin{tsremark}
   A warning is raised if the (deprecated) \tsobj{\defNewRepository} is called. Use \tsobj{\defRepository} instead.
@@ -166,7 +162,7 @@ An error is raised if \tsobj[marg]{repository} doesn't exist. In case the \tsobj
 \tsobj{\defQuestionAlias}\tsargs[oarg]{dst-repository}\tsargs[marg]{quest-alias}\tsargs[oarg]{org-repository}\tsargs[marg]{quest-name}
 \tsobj{\defQuestionAlias*}\tsargs[oarg]{dst-repository}\tsargs[marg]{quest-alias}\tsargs[oarg]{org-repository}\tsargs[marg]{quest-name}
 \end{codesyntax}
-\tsobj{\defQuestionAlias} creates an alias, \tsobj[marg]{quest-alias} (at \tsobj[oarg]{dst-repository}) for a given question, \tsobj[marg]{quest-name} (from \tsobj[oarg]{org-repository}). The current active repository is used if none is specified. If only \tsobj[oarg]{dst-repository} is specified, the same repository is used for \tsobj[oarg]{org-repository}. As with \tsobj{\defQuestion}, the ``star'' refers the sub-set  being used.
+\tsobj{\defQuestionAlias} creates an alias, \tsobj[marg]{quest-alias} (at \tsobj[oarg]{dst-repository}), for a given question, \tsobj[marg]{quest-name} (from \tsobj[oarg]{org-repository}). The current active repository is used if none is specified. If only \tsobj[oarg]{dst-repository} is specified, the same repository is used for \tsobj[oarg]{org-repository}. As with \tsobj{\defQuestion}, the ``star'' refers the sub-set  being used.
 \end{codedescribe}
 
 
@@ -207,17 +203,6 @@ The \tsobj[oarg]{annotation} will only be added if, and only if, the \tsobj[opti
 An error is raised if \tsobj[marg]{repository} or \tsobj[marg]{quest-name} doesn't exist.
 \end{tsremark}
 
-%\begin{codedescribe}{\textQuestion}
-%\begin{codesyntax}%
-%\tsobj{\textQuestion}\tsargs[oarg]{repository}\tsargs[marg]{quest-name}\tsargs[oarg]{key=value list}\tsargs[xarg]{annotation}
-%\end{codesyntax}
-%This is the command to use a ``starred'' (text) question.
-%The \tsobj{\textQuestion} will just use the code in a local group. The \tsobj[oarg]{annotation} will only be added if, and only if, the \tsobj[option]{in review} option is being used. The \tsobj[oarg]{key=value list} is a set of \tsobj[pkg]{pgfkeys}, see \ref{parameters} below.
-%\end{codedescribe}
-%
-%\begin{tsremark}
-%An error is raised if \tsobj[marg]{repository} or \tsobj[marg]{quest-name} don't exist.
-%\end{tsremark}
 
 \begin{codedescribe}[code,new=2025/10/03]{\QuestionsFmtList,\QuestionsList}\label{quest list}
 \begin{codesyntax}%
@@ -230,9 +215,9 @@ An error is raised if \tsobj[marg]{repository} or \tsobj[marg]{quest-name} doesn
 
 Likewise \tsobj[marg]{nonstar-cmd} will be used to typeset a ``non star'' question (assuming the same syntax).
 
-\tsverb{\QuestionsList[repo-list]} is a shortcut for
+\tsobj{\QuestionsList[repo-list]} is a shortcut for
 
-\tsverb{\QuestionsFmtList[repo-list]{\Question*}{\tikzQuestion(0.35)}}
+\tsobj{\QuestionsFmtList[repo-list]{\Question*}{\tikzQuestion(0.35)}}
 
 \end{codedescribe}
 
@@ -246,19 +231,19 @@ An error is raised if any repository in \tsobj[marg]{repositories list} doesn't 
 
 \section{Parameters as keys and auxiliary macros.}\label{parameters}
 
-By default a set of \tsobj[pkg]{keys} and macros is defined as follow: \tsobj[marg]{ID}\tsobj[marg]{idx}. The predefined range of \tsobj[marg]{IDs} being \tsobj[key]{R,L,C,X,Y,Z,K,T,Q,EQ,V,I}. The predefined range of \tsobj[marg]{idx} spans from a, b, c up to z, aa, ab, ac up to az and, finally, ba, bb, bc up to bz. 
+By default a set of \tsobj[pkg]{keys} and macros is defined as follow: \tsobj[marg]{ID}\tsobj[marg]{idx}. The predefined range of \tsobj[marg]{IDs} being \tsobj[key]{R,L,C,Z,Y,G,H,X,K,T,Q,D,EQ,V,I}. The predefined range of \tsobj[marg]{idx} spans from a, b, c up to z, aa, ab, ac up to az and, finally, ba, bb, bc up to bz. 
 \begin{tsremark}
 That means, one gets to use \tsobj[pkg]{keys} as, for example, Ra=200, Lca=500, Kbe=230 and so on. For each of the key's \tsobj[marg]{ID} there is (per default) a set of 3x26 keys. If one adds some 3 other \tsobj[marg]{idx} then one gets 6x26 keys per \tsobj[marg]{ID}.
 \end{tsremark}
 \begin{tsremark}
-The \tsobj[marg]{ID} can be extended with the \tsobj[option]{xtrakeys} option. For example with \tsobj[option,sep={,}]{xtrakeys=\{NN,B\}}, each extra key will add 3x26 keys (per default).
+The \tsobj[marg]{ID}s can be extended with the \tsobj[option]{xtrakeys} option. For example with \tsverb[option]{xtrakeys={NN,B}}, each extra \tsobj[marg]{ID} will add 3x26 keys (per default).
 \end{tsremark}
 \begin{tsremark}
-The \tsobj[marg]{idx} can be extended with the \tsobj[option]{xtraidx} option. For instance with \tsobj[option,sep={,}]{xtraidx=\{f,g\}} one gets fa, fb, fc up to fz, ga, gb, gc up to gz as well, a x26 set per extra idx.
+The \tsobj[marg]{idx}s can be extended with the \tsobj[option]{xtraidx} option. For instance with \tsverb[option]{xtraidx={f,g}} one gets fa, fb, fc up to fz, ga, gb, gc up to gz as well, a x26 set per extra idx.
 \end{tsremark}
 
-Unless the \tsobj[option]{no defs} option is defined, a corresponding macro (with the same name) will also be defined. For example, there is a macro \tsobj{\Ra} associated with the key \tsobj[key]{Ra}.
-All those macros/keys are initialized  as follow (math mode) \tsverb{\ensuremath{<ID>_{<idx>}}}, resulting in $ID_{idx}$. So, for example, the key \tsobj[key]{Rab}, which can be accessed with the macro \tsobj{\Rab},  will be predefined as $R_{ab}$, \tsobj[key]{Lca} (\tsobj{\Lca}) will be predefined as $L_{ca}$, and so on.
+Unless the \tsobj[option]{no defs} option is used, a corresponding macro (with the same name) will also be defined. For example, there is a macro \tsobj{\Ra} associated with the key \tsobj[key]{Ra}.
+All those macros/keys are initialized  as follow (math mode) \tsobj{\ensuremath{<ID>_{<idx>}}}, resulting in $ID_{idx}$. So, for example, the key \tsobj[key]{Rab}, which can be accessed with the macro \tsobj{\Rab},  will be predefined as $R_{ab}$, \tsobj[key]{Lca} (\tsobj{\Lca}) will be predefined as $L_{ca}$, and so on.
 
 The idea is that, when using the commands in \ref{question use}, if one doesn't specify a \tsobj[oarg]{key=value list}, the default values will be en force, and all one has to do (to change those values) is to set said list, which doesn't have to be complete, non assigned keys will keep their default value.
 
@@ -283,11 +268,11 @@ When defining the \tsobj[marg]{code} of a question (see \ref{question definition
   \item the \tsobj{\QuestVal} command which allows to recover the value of both the default keys, as well as the ones defined on the fly.
 \end{itemize}
 \begin{tsremark}[\color{red}Warning:]
-If the option \tsobj[option]{no defs} is defined, the only option to recover a key's value is \tsobj{\QuestVal}. Users are advised to choose a style, and keep it (when starting new docs).
+If the option \tsobj[option]{no defs} is used, the only option to recover a key's value is \tsobj{\QuestVal}. Users are advised to choose a style, and keep it (when starting new docs).
 \end{tsremark}
 
 
-\begin{codedescribe}{\QuestVal}
+\begin{codedescribe}[code,EXP]{\QuestVal}
 \begin{codesyntax}%
 \tsmacro{\QuestVal}{IDidx}
 \tsmacro{\QuestVal}{key}
@@ -295,12 +280,10 @@ If the option \tsobj[option]{no defs} is defined, the only option to recover a k
 This will always recover the value of a key, regardless if the key is one of the pre-defined ones (in the form \tsobj[marg]{IDidx} or an ``on the fly'' new one, \tsobj[marg]{key}.
 If the key didn't get (re)defined with the \tsobj[oarg]{key=value list}, it will return the key/parameter default value. In the case of a ``on the fly'' key, it will be the key's name in red (or the color set up with the \tsobj[option]{undef color} option, see \ref{package options}).
 
-%This should be safe in most situations where \tsobj{\pgfkeys} command can be used. Though, the safest, and most robust, way to use a parameter/key is using it's related macro.
 \end{codedescribe}
-%\begin{tsremark}
-%  Whereas \tsobj{\QuestVal} can't be used (e.g. a fully expandable command is needed), it is possible to use the \tsmeta{handler}/.get syntax from pgfkeys, to recover key into an auxiliary macro, for instance \tsobj[verb]{\QuestVal{my-key/.get=\keycmd}} will recover \tsmeta{my-key} value into \tsobj{\keycmd}. This applies to all keys if the \tsobj[option]{no defs} package option is being used. Otherwise, it applies only to the non pre-defined keys (by default, the pre-defined ones already have set a collection of auxiliary commands).
-%  Of course, \tsmeta{my-key}/.get  will recover a value only if the key has already been set, blank otherwise.
-%\end{tsremark}
+\begin{tsremark}
+  \tsobj{\QuestVal} is fully expandable, if the key's code also is.
+\end{tsremark}
 
 \section{Examples of Use}
 
@@ -370,7 +353,7 @@ In the following code, an extra repository will be set (besides the default one)
 %switching repositories
 \SelectRepository{default} 
 
-% Note that, since it is a different repository, there is no name crashing.
+% Note that, since this is a different repository, there is no name crashing.
 \defQuestion*{Quest A:1}{
  In the following circuit, assuming $\beta \approx \QuestVal{Beta}$ and that $V_{be} \approx 0.65V$, find the value of \Rg \ such that the DC level of \Vo \ is equal to \QuestVal{DC level}.
 }[Just for the sake of it.]

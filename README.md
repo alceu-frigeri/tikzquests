@@ -67,11 +67,11 @@ The Current Maintainer of this work is Alceu Frigeri
     - documentation in PDF format
 
 -------------
-* Version 2.2 (next)
+* Version 2.2 (this)
     - switching over pkginfograb package's info
     - new package options allowing to change key's set and  definition strategy (local instead of global).
 
-* Version 2.1 (this)
+* Version 2.1
     - documentation typos
     - some code cleanup
     - removing duplicates before processing key`s ID/idx

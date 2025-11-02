@@ -20,7 +20,7 @@
 %%
 %% The Current Maintainer of this work is Alceu Frigeri
 %%
-%% This is version {2.1} {2025/10/06}
+%% This is version {2.2} {2025/11/01}
 %%
 %% The list of files that compose this work can be found in the README.md file at
 %% https://ctan.org/pkg/tikzquests
@@ -31,7 +31,7 @@
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage{lmodern}
-\usepackage{codedescribe}
+\usepackage[infograb]{codedescribe}
 \usepackage{tikzquests}
 \RequirePackage[inline]{enumitem}
 \SetEnumitemKey{miditemsep}{parsep=0ex,itemsep=0.4ex}
@@ -67,30 +67,33 @@ This is a framework for building parametric questions' repositories, which can b
 
 \tableofcontents
 
-
-
 \section{Introduction}
-One recurring problem when typesetting exams, specially in Engineering fields, is the need to have parameterized questions, specially parameterized schematics used in exam's questions. The intent of this is to allow the creation of such repositories (one or more) with 'easily' parameterized text and/or graphic (\tsobj[pkg]{tikz}) questions, without enforcing any style/format whatsoever, leaving it to the end user.
+One recurring problem when typesetting exams, specially in Engineering fields, is the need to have parameterized questions, specially parameterized schematics used in exam's questions. The intent of this is to allow the creation of such repositories (one or more) with `easily' parameterized text and/or graphic (\tsobj[pkg]{tikz}) questions, without enforcing any style/format whatsoever, leaving it to the end user.
 
 The package offers
 \begin{itemize}
   \item A set of commands to create and use repositories,
-  \item A set of commands to create and use 'questions' (code snippets) in a repository,
+  \item A set of commands to create and use `questions' (code snippets) in a repository,
   \item Question's customization, parametrization, based on \tsobj[pkg]{keys} and a set of associated macros.
 \end{itemize}
 
 \section{Package Options}\label{package options}
 \begin{describelist}{option}
-\describe{xtrakeys}{This allows to expand the set of pre-defined (\tsobj[pkg]{keys}) keys. See \ref{parameters}.}
+\describe{keys}{(default: {R,L,C,Z,Y,G,H,X,K,T,Q,D,EQ}) This (re)sets the list of pre-defined \tsobj[pkg]{keys}. See \ref{parameters}.}
+\describe{source keys}{(default: {V,I}) This (re)sets the list of pre-defined source \tsobj[pkg]{keys} (those with a $_f$). See \ref{parameters}.}
+\describe{xtrakeys}{This allows to expand the set of pre-defined (\tsobj[pkg]{keys}). See \ref{parameters}.}
+\describe{idx}{(default: {\{\},a,b}) This (re)sets the list of pre-defined indexes per key. The \{\} corresponds to the single letter idx's (a to z). See \ref{parameters}.}
 \describe{xtraidx}{This allows to expand the set of pre-defined (\tsobj[pkg]{keys}) indexes per key. See \ref{parameters}.}
 \describe{no defs}{(default: false). This changes the parametrization strategy suppressing the creation of ``keys commands''.}
 \describe{old settings}{(default: false). This changes the assignment behaviour when \tsobj[option]{no defs} is set.  See \ref{parameters}}
-\describe{no alias}{(default: false). This suppress the creation of Question's aliases (see \ref{question definition}), handy when one wants to reduce the 'noise' when listing all currently known Questions.}
+\describe{local defs}{(default: false). If set, the pre-defined keys will be defined locally (at each command use, those at \ref{question use}), instead of globally (default). This is less prone to name crashing, but comes with a significant performance hit.}
+\describe{no alias}{(default: false). This suppress the creation of Question's aliases (see \ref{question definition}), handy when one wants to reduce the 'noise' while listing all currently known Questions.}
 \describe{in review}{(default: false). When using a question (see \ref{question use}), the question's associated remarks and annotations will be printed as well, if any.}
 \describe{undef color}{(default: red).  This sets the color used to indicated the use of a non defined parameter.  See \ref{parameters}.}
+\describe{keys info}{(default: false). If set, when setting the pre-defined keys, the effective sets of \tsobj[key]{keys,indexes} are logged as a package info.}
 \end{describelist}
-\begin{tsremark}
-  The effective sets of \tsobj[key]{keys,indexes} are logged as a package info.
+\begin{tsremark}[\color{red}Warning:]
+  When (re)setting keys/idx list, don't forget to insert the list between braces, otherwise the keys/indexes will be interpreted as package options leading to error messages when loading the package.
 \end{tsremark}
 
 \section{Repositories}\label{repositories}
@@ -386,10 +389,10 @@ Choose one of the following two questions:
 
 \begin{enumerate}
   \item \Question*[Repo 2]{Quest A:1}<just a last minute note about this>\par
-  \ftikzQuestion(0.4)[Repo 2]{Elect. 1a}
+  \ftikzQuestion(0.35)[Repo 2]{Elect. 1a}
   
   \item \Question*[default]{Quest A:1}<just for the sake of it...>\par
-  \ftikzQuestion(0.4)[default]{Elect. 1b}
+  \ftikzQuestion(0.35)[default]{Elect. 1b}
 \end{enumerate}
 \end{codestore}
 
@@ -408,10 +411,10 @@ Choose one of the following two questions:
 
 \begin{enumerate}
   \item \Question*[Repo 2]{Quest A:1}[Beta=200,Gain=4,Ra=50\Omega]<just a last minute note about this>\par
-  \ftikzQuestion(0.4)[Repo 2]{Elect. 1a}[Ra=50\Omega,Rb*=100\Omega,Rg raw=$100\Omega$,Rc=100\Omega,Rd=R_c,Vbc=18V,Vi=v_i(t),Vo=v_o(t),tikz keys={thick,red}] %%Note the use of the 'tikz keys' key...
+  \ftikzQuestion(0.35)[Repo 2]{Elect. 1a}[Ra=50\Omega,Rb*=100\Omega,Rg raw=$100\Omega$,Rc=100\Omega,Rd=R_c,Vbc=18V,Vi=v_i(t),Vo=v_o(t),tikz keys={thick,red}] %%Note the use of the 'tikz keys' key...
   
   \item \Question*[default]{Quest A:1}[Beta=200,DC level=8V,Rg=R_{b1},Vo=v_o(t)]<just for the sake of it...>\par
-  \ftikzQuestion(0.4)[default]{Elect. 1b}[Ra=50\Omega,Rb*=100\Omega,Rg=R_{b1},Rc=100\Omega,Rd=200\Omega,Vbc=18V,Vi=v_i(t),Vo=v_o(t)]
+  \ftikzQuestion(0.35)[default]{Elect. 1b}[Ra=50\Omega,Rb*=100\Omega,Rg=R_{b1},Rc=100\Omega,Rd=200\Omega,Vbc=18V,Vi=v_i(t),Vo=v_o(t)]
 \end{enumerate}
 \end{codestore}
 

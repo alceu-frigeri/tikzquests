@@ -67,6 +67,10 @@ The Current Maintainer of this work is Alceu Frigeri
     - documentation in PDF format
 
 -------------
+* Version 2.2 (next)
+    - switching over pkginfograb package's info
+    - new package options allowing to change key's set and  definition strategy (local instead of global).
+
 * Version 2.1 (this)
     - documentation typos
     - some code cleanup
@@ -75,11 +79,11 @@ The Current Maintainer of this work is Alceu Frigeri
 
 * Version 2.0a
     - documentation typos
-    - issue #4
+    - issue [#4](https://github.com/alceu-frigeri/tikzquests/issues/4)
     - code cleanup
 
 * Version 2.0
-    - re-factoring: fully re-written as expl3 code (and solving #3)
+    - re-factoring: fully re-written as expl3 code (and solving [#3](https://github.com/alceu-frigeri/tikzquests/issues/3))
     - re-factoring: some commands renamed (old ones still accessible, but deprecated)
     - new, more flexible, command for listing questions: \QuestionsFmtList
     - documentation.
@@ -98,7 +102,7 @@ The Current Maintainer of this work is Alceu Frigeri
     - Added the concept of 'sub-repositories' (relevant when listing the questions of a repository). see documentation.
 
 * Version 1.1
-    - Documentation typos, and issue #1.
+    - Documentation typos, and issue [#1](https://github.com/alceu-frigeri/tikzquests/issues/1).
 
 * Version 1.0
     - Initial release by CTAN.

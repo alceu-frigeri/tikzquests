@@ -307,17 +307,17 @@
   }  
   
   
-\NewDocumentCommand{\ftikzQuestion}{sD(){}O{\l__tikzquests_active_repository_tl}mO{}}
+\NewDocumentCommand{\ftikzQuestion}{sD(){}O{\l__tikzquests_active_repository_tl}mO{}D<>{}}
   {
     \bool_if:nTF {#1}
       {
   			\begin{center}
-          \tikzQuestion*(#2)[#3]{#4}[#5]
+          \tikzQuestion*(#2)[#3]{#4}[#5]<#6>
   			\end{center}
       }
       {
   			\begin{center}
-          \tikzQuestion(#2)[#3]{#4}[#5]
+          \tikzQuestion(#2)[#3]{#4}[#5]<#6>
   			\end{center}
       }
   }  

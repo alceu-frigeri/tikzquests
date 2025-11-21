@@ -12,7 +12,7 @@
 %%
 %% The Current Maintainer of this work is Alceu Frigeri
 %%
-%% This is version {2.2a} {2025/11/02}
+%% This is version {2.3} {2025/11/23}
 %%
 %% The list of files that compose this work can be found in the README.md file at
 %% https://ctan.org/pkg/tikzquests
@@ -20,27 +20,23 @@
 %%%==============================================================================
 \NeedsTeXFormat{LaTeX2e}[2022/06/01]
 
-
-\ProvidesExplPackage
-    {tikzquests}
-    {2025/11/02}
-    {2.2a}
-    {A Simple Framework for (tikz/text) Parametric Questions}
-
 %%%%%%%
 %%%
-%%% Just an attempt of having my packages info in a regular way
-%%% \pkginfograb_set:nn {<pkg-name>} { props} for each and all.
+%%% Just an attempt at having my package's info in a regular way
+%%%   \pkginfograb_set:nn {<pkg-name>} { props} sets package info
+%%%
+%%%   \pkginfograbProvidesExplPackage {<pkg-name>} { props} sets package info
+%%%     and calls \ProvidesExplPackage
 %%%
 %%%%%%%
 \RequirePackage{pkginfograb}
-\pkginfograb_set:nn { tikzquests }
+\pkginfograbProvidesExplPackage {tikzquests}
   {
      name        = {tikzquests} ,
      prefix      = {tikzquests} ,
-     date        = {2025/11/02},
-     version     = {2.2a} ,
-     description = {A~ Simple~ Framework~ for~ (tikz/text)~ Parametric~ Questions}
+     date        = {2025/11/23},
+     version     = {2.3} ,
+     description = {A Simple Framework for (tikz/text) Parametric Questions}
   }
 %%%%%%%
 %%% End of cut-n-paste
@@ -51,9 +47,9 @@
 %\tikzquests@@nodefsfalse
 
 
-\tl_set:Nn \l__tikzquests_keys_tl  {R,L,C,Z,Y,G,H,X,K,T,Q,D,EQ}
-\tl_set:Nn \l__tikzquests_skeys_tl  {V,I}
-\tl_set:Nn \l__tikzquests_idx_tl {{},a,b}
+\clist_set:Nn \l__tikzquests_keys_clist  {R,L,C,Z,Y,G,H,X,K,T,Q,D,EQ}
+\clist_set:Nn \l__tikzquests_skeys_clist  {V,I}
+\clist_set:Nn \l__tikzquests_idx_clist {{},a,b}
 
 \keys_define:nn {tikzquests }
   {
@@ -61,24 +57,29 @@
     no~ alias  .bool_set:N = \l__tikzquests_noalias_bool ,
     no~ alias  .value_forbidden:n  = true ,
 
+    keys~ prefix .usage:n = load ,
+    keys~ prefix .tl_set:N = \l__tikzquests_prefix_tl ,
+    keys~ prefix .value_required:n  = true ,
+    
+    
     xtrakeys .usage:n = load ,
-    xtrakeys .tl_set:N = \l__tikzquests_xtrakeys_tl ,
+    xtrakeys .clist_set:N = \l__tikzquests_xtrakeys_clist ,
     xtrakeys .value_required:n  = true ,
     
     keys .usage:n = load ,
-    keys .tl_set:N = \l__tikzquests_keys_tl ,
+    keys .clist_set:N = \l__tikzquests_keys_clist ,
     keys .value_required:n  = true ,
     
     source~ keys .usage:n = load ,
-    source~ keys .tl_set:N = \l__tikzquests_skeys_tl ,
+    source~ keys .clist_set:N = \l__tikzquests_skeys_clist ,
     source~ keys .value_required:n  = true ,
 
     xtraidx .usage:n = load ,
-    xtraidx .tl_set:N = \l__tikzquests_xtraidx_tl ,
+    xtraidx .clist_set:N = \l__tikzquests_xtraidx_clist ,
     xtraidx .value_required:n  = true ,
    
     idx .usage:n = load ,
-    idx .tl_set:N = \l__tikzquests_idx_tl ,
+    idx .clist_set:N = \l__tikzquests_idx_clist ,
     idx .value_required:n  = true ,
    
     undef~ color .usage:n = load ,
@@ -88,6 +89,9 @@
 
     in~ review .usage:n = load ,
     in~ review .bool_set:N = \l__tikzquests_inreview_bool ,
+
+    draft .usage:n = load ,
+    draft .bool_set:N = \l__tikzquests_inreview_bool ,
 
     no~ defs  .usage:n = load ,
     no~ defs  .bool_set:N = \l__tikzquests_nodefs_bool ,
@@ -156,10 +160,10 @@
 
 \msg_new:nnnn {tikzquests} {info}
   {
-    Processed ~ #1:~ #2
+    #1:~ #2
   }
   {
-    Set~ of ~processed ~ #1:~ #2.
+    #1:~ #2.
   }
 
 
@@ -167,17 +171,19 @@
 \tl_new:N   \l__tikzquests_active_repository_tl
 \seq_new:N  \l__tikzquests_tmpa_seq
 \seq_new:N  \l__tikzquests_tmpb_seq
+
+\tl_new:N   \l__tikzquests_repo_tl    
 \tl_new:N   \l__tikzquests_tmp_tl  
+\tl_new:N   \l__tikzquests_tmpa_tl  
+\tl_new:N   \l__tikzquests_tmpb_tl  
+\tl_new:N   \l__tikzquests_tmpc_tl  
+\tl_new:N   \l__tikzquests_tmpd_tl  
 
 \cs_new_protected:Npn \__tikzquests_select_repository:n #1
   {
     \prop_if_exist:cTF {l__tikzquests_ #1 _tikzrepo_prop}
-    { 
-      \tl_set:Nn \l__tikzquests_active_repository_tl {#1}
-    }
-    {  
-      \msg_error:nnne {tikzquests}{invalid repository}{select~01}{#1}
-    }
+    { \tl_set:Nn \l__tikzquests_active_repository_tl {#1} }
+    { \msg_error:nnne {tikzquests}{invalid repository}{select~01}{#1} }
   }
 
 \cs_new_protected:Npn \__tikzquests_new_repository:nn #1#2
@@ -188,28 +194,20 @@
       }
       { 
         \prop_new_linked:c {l__tikzquests_ #2 _tikzrepo_prop}
-        \prop_new_linked:c {l__tikzquests_ #2 _tikzrepo_remarks_prop}
         \prop_new_linked:c {l__tikzquests_ #2 _textrepo_prop}
-        \prop_new_linked:c {l__tikzquests_ #2 _textrepo_remarks_prop}
         \seq_put_right:Nn \l__tikzquests_repositories_seq {#2}
       }
     \bool_if:nT {#1}
-      {
-        \__tikzquests_select_repository:n {#2}
-      }
+      { \__tikzquests_select_repository:n {#2} }
   }  
 
 \__tikzquests_new_repository:nn {\c_true_bool}{default}
 
 \NewDocumentCommand{\SelectRepository}{m}
-  {
-    \__tikzquests_select_repository:n {#1}
-  }
+  { \__tikzquests_select_repository:n {#1} }
   
 \NewDocumentCommand{\defRepository}{sm}
-  {
-    \__tikzquests_new_repository:nn {#1}{#2}
-  }  
+  { \__tikzquests_new_repository:nn {#1}{#2} }  
 
 \NewDocumentCommand\defNewRepository{sm}
   {
@@ -223,112 +221,78 @@
     \prop_if_exist:cTF {l__tikzquests_ #2 _tikzrepo_prop}
     {
       \bool_if:nTF {#1}
-        { 
-          \prop_put:cnn {l__tikzquests_ #2 _textrepo_prop}{#3}{#4} 
-          \prop_put:cnn {l__tikzquests_ #2 _textrepo_remarks_prop}{#3}{#5} 
-        }
-        { 
-          \prop_put:cnn {l__tikzquests_ #2 _tikzrepo_prop}{#3}{#4} 
-          \prop_put:cnn {l__tikzquests_ #2 _tikzrepo_remarks_prop}{#3}{#5} 
-        }    
+        { \prop_put:cnn {l__tikzquests_ #2 _textrepo_prop}{#3}{{#4}{#5}} }
+        { \prop_put:cnn {l__tikzquests_ #2 _tikzrepo_prop}{#3}{{#4}{#5}} }    
     }
-    {
-      \msg_error:nnne {tikzquests}{invalid repository}{def~quest~01}{#2}
-    }
+    { \msg_error:nnne {tikzquests}{invalid repository}{def~quest~01}{#2} }
   }
   
   
 \NewDocumentCommand{\defQuestionAlias}{sO{\l__tikzquests_active_repository_tl}mO{}m}
   {
     \tl_if_blank:nTF {#4}
-      { \tl_set:Nn \l_tmpa_tl {#2} }
-      { \tl_set:Nn \l_tmpa_tl {#4} }
-    \bool_lazy_and:nnTF { \prop_if_exist_p:c {l__tikzquests_ #2 _tikzrepo_prop} } { \prop_if_exist_p:c {l__tikzquests_ \l_tmpa_tl _tikzrepo_prop} }
+      { \tl_set:Nn \l__tikzquests_tmpa_tl {#2} }
+      { \tl_set:Nn \l__tikzquests_tmpa_tl {#4} }
+    \bool_lazy_and:nnTF { \prop_if_exist_p:c {l__tikzquests_ #2 _tikzrepo_prop} } { \prop_if_exist_p:c {l__tikzquests_ \l__tikzquests_tmpa_tl _tikzrepo_prop} }
     {
       \bool_if:NF \l__tikzquests_noalias_bool
         {
           \bool_if:nTF {#1}
             { 
-              \prop_get:cnNTF {l__tikzquests_ \l_tmpa_tl _textrepo_prop}{#5} \l_tmpb_tl
-                {
-                  \prop_put:cnV {l__tikzquests_ #2 _textrepo_prop}{#3} \l_tmpb_tl
-                  \prop_get:cnNTF {l__tikzquests_ \l_tmpa_tl _textrepo_remarks_prop}{#5} \l_tmpb_tl
-                    { \prop_put:cnV {l__tikzquests_ #2 _textrepo_remarks_prop}{#3} \l_tmpb_tl }
-                    { \prop_put:cnn {l__tikzquests_ #2 _textrepo_remarks_prop}{#3}{} }
-                }
-                { 
-                  \msg_error:nnnn {tikzquests}{invalid question}{alias~01}{#5} 
-                }
+              \prop_get:cnNTF {l__tikzquests_ \l__tikzquests_tmpa_tl _textrepo_prop}{#5} \l__tikzquests_tmpb_tl
+                { \prop_put:cnV {l__tikzquests_ #2 _textrepo_prop}{#3} \l__tikzquests_tmpb_tl }
+                { \msg_error:nnnn {tikzquests}{invalid question}{alias~01}{#5}  }
             }
             { 
-              \prop_get:cnNTF {l__tikzquests_ \l_tmpa_tl _tikzrepo_prop}{#5} \l_tmpb_tl
-                {
-                  \prop_put:cnV {l__tikzquests_ #2 _tikzrepo_prop}{#3} \l_tmpb_tl
-                  \prop_get:cnNTF {l__tikzquests_ \l_tmpa_tl _tikzrepo_remarks_prop}{#5} \l_tmpb_tl
-                    { \prop_put:cnV {l__tikzquests_ #2 _tikzrepo_remarks_prop}{#3} \l_tmpb_tl }
-                    { \prop_put:cnn {l__tikzquests_ #2 _tikzrepo_remarks_prop}{#3}{} }
-                }
-                { 
-                  \msg_error:nnnn {tikzquests}{invalid question}{alias~02}{#5} 
-                }
+              \prop_get:cnNTF {l__tikzquests_ \l__tikzquests_tmpa_tl _tikzrepo_prop}{#5} \l__tikzquests_tmpb_tl
+                { \prop_put:cnV {l__tikzquests_ #2 _tikzrepo_prop}{#3} \l__tikzquests_tmpb_tl  }
+                { \msg_error:nnnn {tikzquests}{invalid question}{alias~02}{#5}  }
             }
         }
     }
     {
       \tl_if_blank:nTF {#4}
-        {
-          \msg_error:nnne {tikzquests}{invalid repository}{alias~04}{<#2>}
-        }
-        {
-          \msg_error:nnne {tikzquests}{invalid repository}{alias~04}{<#2> - <#4>}
-        }
+        { \msg_error:nnne {tikzquests}{invalid repository}{alias~04}{<#2>} }
+        { \msg_error:nnne {tikzquests}{invalid repository}{alias~04}{<#2> - <#4>} }
     }
   }
   
-\cs_new_protected:Npn \__tikzquests_remarks:nnn #1#2#3
-  {
-    \prop_get:cnN {l__tikzquests_ #1 _remarks_prop} {#2} \l__tikzquests_tmp_tl
-    \tl_if_blank:eF {\l__tikzquests_tmp_tl}
-      {
-        {\par\footnotesize\textbf{Remarks:~}\color{\l__tikzquests_undefcolor_tl}\l__tikzquests_tmp_tl}
-      }
-  }  
-
-\cs_new_protected:Npn \__tikzquests_inreview_remarks:nnn #1#2#3
-  {
-    \bool_if:nT {\l__tikzquests_inreview_bool}
-      {  
-        \__tikzquests_remarks:nnn {#1}{#2}{#3}  
-        \tl_if_blank:nF {#3}
-          {
-            {\par\footnotesize\textbf{Annotation:~}\color{\l__tikzquests_undefcolor_tl}#3}
-          }
-      }
-  }  
   
-  
-\NewDocumentCommand{\ftikzQuestion}{sD(){}O{\l__tikzquests_active_repository_tl}mO{}D<>{}}
+\cs_new_protected:Npn \__tikzquests_annot:nnn #1#2#3
   {
-    \bool_if:nTF {#1}
+    \bool_if:nT {#1}
       {
-  			\begin{center}
-          \tikzQuestion*(#2)[#3]{#4}[#5]<#6>
-  			\end{center}
+        {
+          \scriptsize
+          \tl_if_blank:nF {#2}
+            { \par\textbf{Remarks:~}{\color{\l__tikzquests_undefcolor_tl}#2} }
+          \tl_if_blank:nF {#3}
+            { \par\textbf{Annotation:~}{\color{\l__tikzquests_undefcolor_tl}#3} }
+        }
       }
-      {
-  			\begin{center}
-          \tikzQuestion(#2)[#3]{#4}[#5]<#6>
-  			\end{center}
-      }
-  }  
+  }
+\cs_generate_variant:Nn   \__tikzquests_annot:nnn {Vnn, VVn, nVn}
 
 \cs_new_protected:Npn \__tikzquests_pgfkeys:n #1
-  {
-    \pgfkeys{tikz , #1}
-  }
+  { \pgfkeys{tikz , #1} }
   
-\tl_new:N \l__tikzquests_repo_tl    
-\NewDocumentCommand{\tikzQuestion}{sD(){}O{\l__tikzquests_active_repository_tl}mO{}D<>{}}
+\cs_new_protected:Npn \__tiqzquests_tikzpicture:nn #1#2
+  {
+		\begin{tikzpicture}
+      \__tikzquests_keys_set:n{#2}
+      \exp_args:NV \__tikzquests_pgfkeys:n \l__tikzquests_tikz_keys_tl
+			#1
+		\end{tikzpicture}  
+  }  
+\cs_generate_variant:Nn   \__tiqzquests_tikzpicture:nn {Vn}
+
+\cs_new_protected:Npn \__tikzquests_prop_split:nnNN #1#2#3#4
+  {
+    \tl_set:Nn #3 {#1}
+    \tl_set:Nn #4 {#2}
+  }
+
+\cs_new_protected:Npn \__tikzquests_tikzquestion:nnnnnn #1#2#3#4#5#6
   {
     \bool_if:nTF {#1}
       { \tl_set:Nn \l__tikzquests_repo_tl {textrepo} }
@@ -337,23 +301,19 @@
     {
       \prop_get:cnNTF {l__tikzquests_ #3 _ \l__tikzquests_repo_tl _prop} {#4} \l__tikzquests_tmp_tl
         {
+          \exp_last_unbraced:NV \__tikzquests_prop_split:nnNN \l__tikzquests_tmp_tl \l__tikzquests_tmpa_tl \l__tikzquests_tmpb_tl
+
           \tl_if_blank:nTF {#2}
             {
-      				\begin{tikzpicture}
-                \__tikzquests_keys_set:n{#5}
-                \exp_args:NV \__tikzquests_pgfkeys:n \l__tikzquests_tikz_keys_tl
-        				\l__tikzquests_tmp_tl
-      				\end{tikzpicture}
+              \__tiqzquests_tikzpicture:Vn \l__tikzquests_tmpa_tl {#5} 
             }
             {
       				\resizebox{#2\textwidth}{!}{
-      				\begin{tikzpicture}
-                \__tikzquests_keys_set:n{#5}
-                \exp_args:NV \__tikzquests_pgfkeys:n \l__tikzquests_tikz_keys_tl
-        				\l__tikzquests_tmp_tl
-      				\end{tikzpicture}}
+              \__tiqzquests_tikzpicture:Vn \l__tikzquests_tmpa_tl {#5}  }
             }
-          \__tikzquests_inreview_remarks:nnn {#3 _ \l__tikzquests_repo_tl}{#4}{#6}
+          \__tikzquests_annot:nnn 
+            \l__tikzquests_inreview_bool
+            {\l__tikzquests_tmpb_tl}{#6}          
         }
         {
           Invalid~Question:~#4
@@ -364,6 +324,18 @@
       Invalid~Repository:~#3
       \msg_error:nnne {tikzquests}{invalid repository}{quest~01}{#3}
     }
+  }
+
+
+\NewDocumentCommand{\tikzQuestion}{sD(){}O{\l__tikzquests_active_repository_tl}mO{}D<>{}}
+  { \__tikzquests_tikzquestion:nnnnnn {#1}{#2}{#3}{#4}{#5}{#6} }  
+
+  
+\NewDocumentCommand{\ftikzQuestion}{sD(){}O{\l__tikzquests_active_repository_tl}mO{}D<>{}}
+  {
+    \begin{center}
+      \__tikzquests_tikzquestion:nnnnnn {#1}{#2}{#3}{#4}{#5}{#6}
+    \end{center}
   }  
 
 \cs_new_protected:Npn \__tikzquests_rawquestion:nnnnn #1#2#3#4#5
@@ -372,11 +344,15 @@
     {
       \prop_get:cnNTF {l__tikzquests_ #1 _ #2 _prop} {#3} \l__tikzquests_tmp_tl
         {
+         \exp_last_unbraced:NV \__tikzquests_prop_split:nnNN \l__tikzquests_tmp_tl \l__tikzquests_tmpa_tl \l__tikzquests_tmpb_tl
+        
           \begingroup
             \__tikzquests_keys_set:n{#4}
-     				\l__tikzquests_tmp_tl
+            \l__tikzquests_tmpa_tl
           \endgroup
-          \__tikzquests_inreview_remarks:nnn {#1 _ #2}{#3}{#5}
+          \__tikzquests_annot:nnn 
+            \l__tikzquests_inreview_bool
+            {\l__tikzquests_tmpb_tl}{#5}
         }
         {
           Invalid~Question:~#3
@@ -388,6 +364,7 @@
       \msg_error:nnne {tikzquests}{invalid repository}{quest~02}{#1}
     }
   }  
+
   
 \NewDocumentCommand{\rawtikzQuestion}{O{\l__tikzquests_active_repository_tl}mO{}D<>{}}
   {
@@ -444,7 +421,18 @@
                     {
                       \noindent #3[#1]{##1}
                       \bool_if:nF {\l__tikzquests_inreview_bool}
-                        {  \__tikzquests_remarks:nnn {#1 _ #2}{##1}{}  }
+                        {
+                          \prop_get:cnN {l__tikzquests_ #1 _ #2 _prop} {##1}
+                            \l__tikzquests_tmpc_tl
+                            
+                            %%% dubious, at best...the remark is the 2nd {} from the property item
+                          \exp_last_unbraced:NNNV \use_i_ii:nnn \tl_set:Nn \l__tikzquests_tmpd_tl \l__tikzquests_tmpc_tl
+
+                          \__tikzquests_annot:nVn
+                            \c_true_bool
+                            \l__tikzquests_tmpd_tl
+                            {}
+                        }
                     }
                   \coffin_join:NnnNnnnn
                     \l__tikzquests_tmpa_coffin {r}{vc}
@@ -475,9 +463,9 @@
       {
         \regex_match:nnTF {/$}{##1}
           {
-            \tl_set:Nn \l_tmpa_tl {##1}
-            \regex_replace_once:nnN {/$}{} \l_tmpa_tl
-            \seq_put_right:Nn \l__tikzquests_tmpa_seq {\l_tmpa_tl}
+            \tl_set:Nn \l__tikzquests_tmpa_tl {##1}
+            \regex_replace_once:nnN {/$}{} \l__tikzquests_tmpa_tl
+            \seq_put_right:Nn \l__tikzquests_tmpa_seq {\l__tikzquests_tmpa_tl}
             \seq_map_inline:Nn \l__tikzquests_repositories_seq
               {
                 \regex_match:nnTF {##1}{####1}
@@ -529,12 +517,8 @@
       }
   }
 
-
 \NewDocumentCommand{\QuestionsList}{O{}}
-  {
-    \QuestionsFmtList[#1]{\Question*}{\tikzQuestion(0.35)}
-  }
-
+  { \QuestionsFmtList[#1]{\Question*}{\tikzQuestion(0.35)} }
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%
@@ -542,14 +526,12 @@
 %%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%
 
- 
 \cs_new:Npn \__tikzquests_keys_set:n #1
   { 
     \__tikzquests_lkeys_set:
     \keys_set:nn { tikzquests / vars }
       {#1}
   }
-
 
 \NewDocumentCommand {\QuestVal} {m}
   {
@@ -566,94 +548,86 @@
     \keys_define:nn { tikzquests / vars }
       {
         #1 .code:n = 
-          {
-            \tl_set:cn {#2} {#4{##1}}
-          } ,
+          { \tl_set:cn {#2} {#4{##1}} } ,
         #1 .value_required:n = true ,
         
         #1* .code:n = 
-          {
-            \tl_set:cn {#2} {\ensuremath{##1}}
-          } ,                      
+          { \tl_set:cn {#2} {\ensuremath{##1}} } ,                      
         #1* .value_required:n = true ,
         
         #1 ~ raw .code:n = 
-          {
-            \tl_set:cn {#2} {##1}
-          } ,                      
+          { \tl_set:cn {#2} {##1} } ,                      
         #1 ~ raw .value_required:n = true ,
       }
   }
 
+\seq_const_from_clist:Nn \c__tikzquests_abc_seq {a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z}
 
-\cs_new_protected:Npn \__tikzquests_keys:NNn #1#2#3
+\cs_new_protected:Npn \__tikzquests_keys:nNNn #1#2#3#4
   {
-    \clist_map_inline:Nn #1
+
+    \seq_map_inline:Nn #2
       {
-        \clist_map_inline:Nn #2
+        \seq_map_inline:Nn #3
           {
-            \clist_map_inline:nn {a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z}
+            \seq_map_inline:Nn \c__tikzquests_abc_seq
               {
-                \exp_args:Ncc \tl_set:Nn {l__tikzquests_ ##1####1########1 _key_tl} {##1####1########1}
+                \exp_args:Ncc \tl_set:Nn {l__tikzquests_ #1##1####1########1 _key_tl} {##1####1########1}
                 \__tikzquests_keydef:nnnN 
-                  { ##1####1########1 }
-                  { ##1####1########1 }
-                  {\ensuremath{##1 \c_math_subscript_token {#3{####1########1}}}}
+                  { #1##1####1########1 }
+                  { #1##1####1########1 }
+                  {\ensuremath{#1##1 \c_math_subscript_token {#4{####1########1}}}}
                   \ensuremath
               }
           }
       }   
   }
+\cs_generate_variant:Nn  \__tikzquests_keys:nNNn {V}
 
 
-\cs_new_protected:Npn \__tikzquests_keys_nodefs:NNn #1#2#3
+\cs_new_protected:Npn \__tikzquests_keys_nodefs:nNNn #1#2#3#4
   {
     \bool_if:NTF \l__tikzquests_oldsettings_bool
+      { \cs_set_eq:NN \__tikzquests_auxi: \relax  }
+      { \cs_set_eq:NN \__tikzquests_auxi: \ensuremath  }
+
+    \seq_map_inline:Nn #2
       {
-        \cs_set_eq:NN \__tikzquests_auxi: \relax
-      }
-      {
-        \cs_set_eq:NN \__tikzquests_auxi: \ensuremath
-      }
-    \clist_map_inline:Nn #1
-      {
-        \clist_map_inline:Nn #2
+        \seq_map_inline:Nn #3
           {
-            \clist_map_inline:nn {a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z}
+            \seq_map_inline:Nn \c__tikzquests_abc_seq            
               {
                 \__tikzquests_keydef:nnnN
-                  { ##1####1########1 }
-                  { l__tikzquests_ ##1####1########1 _key_tl }
-                  {\ensuremath{##1 \c_math_subscript_token {#3{####1########1}}}}
+                  { #1##1####1########1 }
+                  { l__tikzquests_ #1##1####1########1 _key_tl }
+                  {\ensuremath{#1##1 \c_math_subscript_token {#4{####1########1}}}}
                   \__tikzquests_auxi:
               }
           }
       }   
   }
+\cs_generate_variant:Nn  \__tikzquests_keys_nodefs:nNNn {V}
 
-
-
-
-\cs_new_protected:Npn \__tikzquests_newkey:nn #1#2
+\cs_new_protected:Npn \__tikzquests_newkey:Nnn #1#2#3
   {
-    \tl_if_empty:nTF {#2}
+    \tl_if_empty:nTF {#3}
       {
-        \tl_set:cn {l__tikzquests_ #1 _key_tl} 
-          {
-            \textbf { \emph{ \color{ \l__tikzquests_undefcolor_tl } #1  } }
-          }        
+        \tl_set:Nn #1
+          { \textbf { \emph{ \color{ \l__tikzquests_undefcolor_tl } #2  } } }        
       }
       {
-        \tl_set:cn {l__tikzquests_ #1 _key_tl} 
-          { #2 }        
+        \tl_set:Nn #1
+          { #3 }        
       }
     \keys_define:nn { tikzquests / vars }
       {
-        #1 .tl_set:c = {l__tikzquests_ #1 _key_tl} , 
-        #1 .value_required:n = true
+        #2 .tl_set:N = #1 , 
+        #2 .value_required:n = true
       }    
   }
+\cs_generate_variant:Nn \__tikzquests_newkey:Nnn {cV}
 
+\cs_generate_variant:Nn \msg_note:nnnn {nnne}
 
 \cs_new_protected:Npn \__tikzquests_keys_set: 
   {
@@ -661,53 +635,64 @@
       {
         unknown .code:n = 
           {
-            \exp_args:NV \__tikzquests_newkey:nn \l_keys_key_str {##1}          
+            \__tikzquests_newkey:cVn 
+              {l__tikzquests_ \l_keys_key_str _key_tl} 
+              \l_keys_key_str 
+              {##1}          
           } ,
         tikz ~ keys .tl_set:N = \l__tikzquests_tikz_keys_tl
       }
 
-%    \clist_set:Nn \l__tikzquests_keys_clist  {R,L,C,Z,Y,G,H,X,K,T,Q,D,EQ,V,I}
-    \clist_set:NV \l__tikzquests_keys_clist  \l__tikzquests_keys_tl
-    \tl_if_blank:VF \l__tikzquests_xtrakeys_tl
-      {
-        \clist_put_right:NV \l__tikzquests_keys_clist \l__tikzquests_xtrakeys_tl
-        \clist_remove_duplicates:N \l__tikzquests_keys_clist
-      } 
-       
+    \clist_concat:NNN \l__tikzquests_keys_clist \l__tikzquests_keys_clist \l__tikzquests_xtrakeys_clist
+    \seq_set_from_clist:NN \l__tikzquests_keys_seq \l__tikzquests_keys_clist
+    \seq_remove_duplicates:N \l__tikzquests_keys_seq
 
-%    \clist_set:Nn \l__tikzquests_idx_clist {{},a,b}
-    \clist_set:NV \l__tikzquests_idx_clist \l__tikzquests_idx_tl
-    \tl_if_blank:VF \l__tikzquests_xtraidx_tl
-      {
-        \clist_put_right:NV \l__tikzquests_idx_clist \l__tikzquests_xtraidx_tl
-        \clist_remove_duplicates:N \l__tikzquests_idx_clist
-      }
+    \clist_concat:NNN \l__tikzquests_idx_clist \l__tikzquests_idx_clist \l__tikzquests_xtraidx_clist
+    \seq_set_from_clist:NN \l__tikzquests_idx_seq \l__tikzquests_idx_clist
+    \seq_remove_duplicates:N \l__tikzquests_idx_seq
+         
+    \seq_set_from_clist:NN \l__tikzquests_skeys_seq \l__tikzquests_skeys_clist
+    \seq_remove_duplicates:N \l__tikzquests_skeys_seq
       
     \bool_if:NTF \l__tikzquests_keysinfo_bool
       {
-        \msg_note:nnnV {tikzquests}{info}
-          {keys}
-          \l__tikzquests_keys_clist
-        \msg_note:nnnV {tikzquests}{info}
-          {indexes} 
-          \l__tikzquests_idx_clist
+        \tl_if_empty:VTF \l__tikzquests_prefix_tl
+          {
+            \msg_note:nnnn {tikzquests}{info}
+              {keys ~ prefix}
+              {  -no~ key~ prefix- ~ (default) }
+          }
+          {
+            \msg_note:nnne {tikzquests}{info}
+              {keys ~ prefix}
+              { \l__tikzquests_prefix_tl }
+          }
+        \msg_note:nnne {tikzquests}{info}
+          {Processed ~ keys}
+          { \seq_use:Nn \l__tikzquests_keys_seq {,} }
+        \msg_note:nnne {tikzquests}{info}
+          {Processed ~ source ~ keys}
+          { \seq_use:Nn \l__tikzquests_skeys_seq {,} }
+        \msg_note:nnne {tikzquests}{info}
+          {Processed ~ indexes} 
+          { \seq_use:Nn \l__tikzquests_idx_seq {,} }
       }
       {}
     
     \bool_if:NTF \l__tikzquests_nodefs_bool
-      { \cs_gset_eq:NN \__tikzquests_map:NNn \__tikzquests_keys_nodefs:NNn }
-      { \cs_gset_eq:NN \__tikzquests_map:NNn \__tikzquests_keys:NNn }
+      { \cs_gset_eq:NN \__tikzquests_map:VNNn \__tikzquests_keys_nodefs:VNNn }
+      { \cs_gset_eq:NN \__tikzquests_map:VNNn \__tikzquests_keys:VNNn }
             
-    \__tikzquests_map:NNn 
-      \l__tikzquests_keys_clist
-      \l__tikzquests_idx_clist 
+    \__tikzquests_map:VNNn 
+      \l__tikzquests_prefix_tl
+      \l__tikzquests_keys_seq
+      \l__tikzquests_idx_seq
       {}
-      
-%    \clist_set:Nn \l__tikzquests_keys_clist {V,I}
-    \clist_set:NV \l__tikzquests_keys_clist \l__tikzquests_skeys_tl
-    \__tikzquests_map:NNn 
-      \l__tikzquests_keys_clist
-      \l__tikzquests_idx_clist 
+
+    \__tikzquests_map:VNNn 
+      \l__tikzquests_prefix_tl
+      \l__tikzquests_skeys_seq
+      \l__tikzquests_idx_seq
       { f \c_math_subscript_token }
 
   }

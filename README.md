@@ -71,6 +71,8 @@ The Current Maintainer of this work is Alceu Frigeri
 * Version 2.3 (this)
     - using ```\pkginfograbProvidesExplPackage```
     - removing all kernel scratch variables references.
+    - added 'keys prefix' package option. re-factored keys setting with \seq
+    - further code clean up
 
 * Version 2.2/2.2a 
     - switching over pkginfograb package's info
